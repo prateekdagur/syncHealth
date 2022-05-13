@@ -1,0 +1,12 @@
+[{
+         "errorBoolean": false,
+        "loginSuccess":  "Logged in Successfully",
+        "logoutOutSuccess": "logged out Successfully",
+        "checkMail": "Please check your email id for Link",
+        "checkOTP": "Please check your email id for OTP.",
+        "accountApprove": "Your account has been approved",
+        "otpVerified":  "OTP Verified Successfully",
+        "passUpdated": "Password is Updated successfully.",
+        "SuccessResponseCode": 200,
+        "": ""
+    }]
