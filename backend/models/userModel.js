@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+let Joi = require('joi')
 //Model for user details.
 const userSchema = new mongoose.Schema(
 	{
@@ -19,12 +20,52 @@ const userSchema = new mongoose.Schema(
           type: Boolean,
 		  default: false
 		}
+		// modifiedate: {
+		// 	type: Date,
+		// }
+
 	},
 	{
 		timestamps: true,
 	},
 );
+
+const userJoiSchema = Joi.object().keys({
+    name: Joi.string().required(),
+    email: Joi.string().email().required(),
+    password: Joi.string().required()
+  })
+
+  const userLoginJoiSchema = Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+    device_token: Joi.string().required(),
+
+  })
+
+  const resetPasswordJoiSchema = Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required()
+
+  })
+
+  const userLogoutJoiSchema = Joi.object().keys({
+    
+    devicetoken: Joi.string().required(),
+
+  })
+
+  const userForgotPasswordJoiSchema = Joi.object().keys({
+    
+    email: Joi.string().required(),
+
+  })
+
 //Exporting file and set collection name user.
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+module.exports = {User, userJoiSchema, userLoginJoiSchema, userLogoutJoiSchema, userForgotPasswordJoiSchema, resetPasswordJoiSchema}
+// module.exports = userLoginJoiSchema
+// module.exports = userLogoutJoiSchema
+// module.exports = userForgotPasswordJoiSchema
 
 

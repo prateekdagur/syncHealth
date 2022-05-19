@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+let Joi = require('joi')
 //Model for user details.
 const otpSchema = new mongoose.Schema(
 	{
@@ -16,7 +17,14 @@ const otpSchema = new mongoose.Schema(
 		timestamps: true,
 	},
 );
+
+const otpJoiSchema = Joi.object().keys({
+    
+    otpCode: Joi.string().required(),
+
+  })
 //Exporting file and set collection name user.
 module.exports = mongoose.model("Otp", otpSchema);
 
+module.exports = otpJoiSchema
 

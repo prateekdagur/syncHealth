@@ -19,7 +19,7 @@ const tokenSchema = new mongoose.Schema(
 		timestamps: true,
 	},
 );
+
 //Exporting file and set collection name user.
 module.exports = mongoose.model("Tokens", tokenSchema);
-
 

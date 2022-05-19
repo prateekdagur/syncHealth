@@ -1,10 +1,7 @@
-const User = require("../models/userModel");
-const Token = require("../models/tokenModel")
-const OTP = require("../models/otpModel")
-const Subcription = require("../models/subscription")
+const Subcription = require("../models/admin/subscription")
 const Payment = require("../models/subscriptionPayment")
-const jsonSuccess = require("../message/success.json")
-const jsonError = require("../message/error.json")
+const responseMessage = require("../core/response/responseMessage")
+const responseCode = require("../core/response/responseCode")
 
 const paymentController = {
     subscriptionPayment: async (req,res) =>{

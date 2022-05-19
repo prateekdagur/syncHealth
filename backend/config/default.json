@@ -1,0 +1,13 @@
+{
+    "name": "Sync Health API - development",
+    "debug": "true",
+    "port": "3000", 
+    "webEndPoint":"http://properties.trigma.us",
+    "webEndPointAdmin":"http://tucasasuperadmin.trigma.us/#",
+    "webAdminEmail":"sandeep.kumar@trigma.com",
+    "database": {      
+        "name": "syncHealth",
+        "user": "",
+        "pass": ""
+    }
+}
