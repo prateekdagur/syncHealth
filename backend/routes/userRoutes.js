@@ -8,17 +8,17 @@ const {userJoiSchema, userLoginJoiSchema, userLogoutJoiSchema, userForgotPasswor
 // const userLogoutJoiSchema = require('../models/userModel')
 // const userForgotPasswordJoiSchema = require('../models/userModel')
 // const resetPasswordJoiSchema = require('../models/userModel')
-const otpJoiSchema = require('../models/otpModel')
+const {otpJoiSchema} = require('../models/otpModel')
 //const subscriptionPaymentJoiSchema = require('../models/subscriptionPayment')
- const userController = require("../controllers/userController");
-router.post("/signup", validateMiddleware(userJoiSchema), userController.signUp);
-router.post("/login", validateMiddleware(userLoginJoiSchema), userController.login);
-router.post("/logout", validateMiddleware(userLogoutJoiSchema), userController.logout);
-router.post("/forgotpassword", validateMiddleware(userForgotPasswordJoiSchema), userController.forgotPassword);
-router.post("/verifyotp", validateMiddleware(otpJoiSchema), userController.verifyOTP);
-router.post("/changepassword", validateMiddleware(resetPasswordJoiSchema), userController.resetPassword);
-router.get("/getapprove/:id", userController.approveAccount);
-router.get("/getuser", adminAuth, deviceAuth, userController.getUser);
+ const {signUp, login, logout, forgotPassword, approveAccount, verifyOTP, resetPassword, getUser} = require("../controllers/userController");
+router.post("/signup", validateMiddleware(userJoiSchema), signUp);
+router.post("/login", validateMiddleware(userLoginJoiSchema), login);
+router.post("/logout", validateMiddleware(userLogoutJoiSchema), logout);
+router.post("/forgotpassword", validateMiddleware(userForgotPasswordJoiSchema), forgotPassword);
+router.post("/verifyotp", validateMiddleware(otpJoiSchema), verifyOTP);
+router.post("/changepassword", validateMiddleware(resetPasswordJoiSchema), resetPassword);
+router.get("/getapprove/:id", approveAccount);
+router.get("/getuser", adminAuth, deviceAuth, getUser);
 //router.get("/subscriptionPayment", validateMiddleware(subscriptionPaymentJoiSchema), userController.subscriptionPayment);
 // router.get("/checkSubscription", userController.checkSubscription);
 

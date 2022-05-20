@@ -1,27 +1,36 @@
+"use strict";
 const nodemailer = require('nodemailer');
-const Token = require("../models/tokenModel")
-const OTP = require("../models/otpModel")
+const Token = require("../models/tokenModel");
+const {Otp} = require("../models/otpModel");
 const {User} = require("../models/userModel");
-const responseFunction = require("../core/validations/responseFunction")
+const config = require('config')
+const successResponse = require("../core/validations/successResponse")
+const errorResponse = require("../core/validations/errorResponse")
 //const validateForm = require("../core/middleware/validateForm")
 const Subcription = require("../models/admin/subscription")
 const Payment = require("../models/subscriptionPayment")
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const responseMessage = require("../core/response/responseMessage")
-const responseCode = require("../core/response/responseCode")
-
-const userController = {
+const {ERROR, SUCCESS} = require("../core/response/responseMessage")
+const responseCode = require("../core/response/responseCode");
+//const { use } = require('../routes/userRoutes');
+//const userController = {
 	//Function to register the user.
-   
-	signUp: async (req, res) => {
+	const dataEmpty = config.get('dataEmpty'); 
+	const emptyValidationsErrors = config.get('emptyValidationsErrors'); 
+
+	
+	const signUp = async (req, res) => {
 		try {
 		    const { name, email, password } = req.body;
-		
+			const db_email = config.get('fromMail');
+			const db_linkSubject = config.get('linkSubject'); 
+			const db_approveAccountUrl = config.get('approveAccountUrl'); 
+
 			 const user = await User.findOne({email: email});
 			if (user) {
-				return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.emailExist, responseCode.CODES.CLIENT_ERROR.valueAlreadyExist));
+				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.emailExist, responseCode.CODES.CLIENT_ERROR.valueAlreadyExist, dataEmpty));
 			}
 
             const hash = await bcrypt.hash(password, saltRounds);
@@ -34,7 +43,7 @@ const userController = {
 
 			await newUser.save();
 
-            var transporter = nodemailer.createTransport({
+           const  transporter = nodemailer.createTransport({
 			host: process.env.HOST_EMAIL_SMTP,
 			port: process.env.PORT_EMAIL_SMTP,
 			secure: true, 
@@ -43,154 +52,118 @@ const userController = {
 				pass: process.env.PASSWORD_EMAIL_SMTP,
 			}
 	  });
-	  
-	  var mailOptions = {
-		from: 'donot@trigma.in',
+	
+	  const mailOptions = {
+	    from: db_email,
 		to: email,
-		subject: 'Link Verification',
-		html: `<p>Click <a href="http://localhost:5000/api/getapprove/${newUser._id}">here</a> to approve your account</p>`
+		subject: db_linkSubject,
+		html: `<p>Click <a href="${db_approveAccountUrl}/${newUser._id}">here</a> to approve your account</p>`
 	  };
 	  
 	      const info = await transporter.sendMail(mailOptions)
 		  if(!info){
-			return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.somethingWrong, responseCode.CODES.SERVER_ERROR.internalServerError));
+			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.somethingWrong, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
 		  }
-	
-	
+
 		  res.json(
-			  responseFunction(responseMessage.MESSAGE.SUCCESS.errorBoolean, responseMessage.MESSAGE.SUCCESS.checkMail, responseCode.CODES.SUCCESS.created));
-
-			// res.json({
-			// 	message: jsonSuccess[0].checkMail,
-			// 	error: jsonSuccess[0].errorBoolean,
-			// 	responseCode: jsonSuccess[0].SuccessResponseCode,
-			// 	data: {
-			// 		...newUser._doc,
-			// 		password: " ",
-			// 	}	
-			// });
+			successResponse(SUCCESS.errorBoolean, SUCCESS.checkMail, responseCode.CODES.SUCCESS.created, dataEmpty));
 		} catch (err) {
-			//return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.somethingWrong, responseCode.SERVER_ERROR.internalServerError));
-
-			return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, err.message, responseCode.CODES.SERVER_ERROR.internalServerError));
+			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
 		}
-	},
+	}
 
 
-	approveAccount: async (req, res) => {
+	const approveAccount = async (req, res) => {
 		try {
 			const id_= req.params.id
 			if(!id_){
-				return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.idRequired, responseCode.CODES.CLIENT_ERROR.badRequest));
+				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.idRequired, responseCode.CODES.CLIENT_ERROR.badRequest, dataEmpty));
 			}
 			const updatestatus = await User.findOneAndUpdate({_id: id_}, {
 				verified: true
 			})
 
 			res.json(
-				responseFunction(responseMessage.MESSAGE.SUCCESS.errorBoolean, responseMessage.MESSAGE.SUCCESS.accountApprove, responseCode.CODES.SUCCESS.created));
-
-			// res.json({
-			// 	message: jsonSuccess[0].accountApprove,
-			// 	error: jsonSuccess[0].errorBoolean,
-			// 	responseCode: jsonSuccess[0].SuccessResponseCode
-			// })
+				successResponse(SUCCESS.errorBoolean, SUCCESS.accountApprove, responseCode.CODES.SUCCESS.created));
 		} catch (err) {
-			return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, err.message, responseCode.CODES.SERVER_ERROR.internalServerError));
-
-			//return res.status(500).json({ message: err.message });
+			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
+            //return res.status(500).json({ message: err.message });
 		}
-	},
+	}
 	
 	//Function to login user.
-	login: async (req, res) => {
+	const login = async (req, res) => {
 		try {
-			const { email, password, deviceToken } = req.body;
-			console.log(deviceToken)
+			const { email, password, device_token } = req.body;
+			console.log(device_token)
 
 			//Finding user's email.
 			const user = await User.findOne({ email });
 			if (!user) {
-				return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound));
+				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty));
 			}
 			if(user.status === false){
-				return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.accountNotApprove, responseCode.CODES.CLIENT_ERROR.unaouthorize));
+				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.accountNotApprove, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty));
 			}
-			var pass = await bcrypt.compare(password, user.password)
+			const pass = await bcrypt.compare(password, user.password)
 			if (!pass) {
-				return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.incorrectPass, responseCode.CODES.CLIENT_ERROR.unaouthorize));
+				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.incorrectPass, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty));
             } 
 			//Creating access token.
 			const accesstoken = createAccessToken({ id: user._id });
             if(accesstoken){
            const saveToken = new Token({
 	                   userId: user._id,
-	                   device_token: deviceToken,
+	                   device_token: device_token,
 	                   access_token: accesstoken
                      })
 					 await saveToken.save();
              } 
 
 			 res.json(
-				responseFunction(responseMessage.MESSAGE.SUCCESS.errorBoolean, responseMessage.MESSAGE.SUCCESS.loginSuccess, responseCode.CODES.SUCCESS.accepted));
-
-
-            // res.json({
-			// 	message: jsonSuccess[0].loginSuccess,
-			// 	error: jsonSuccess[0].errorBoolean,
-			// 	responseCode: jsonSuccess[0].SuccessResponseCode,
-			// 		accesstoken,
-			// 		data: {
-			// 			...user._doc,
-			// 			password: " ",
-			// 		}
-			// });
+				successResponse(SUCCESS.errorBoolean, SUCCESS.loginSuccess, responseCode.CODES.SUCCESS.accepted));
 		} catch (err) {
-			return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, err.message, responseCode.CODES.SERVER_ERROR.internalServerError));
-
-			//return res.status(500).json({ message: err.message });
+			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
 		}
-	},
+	}
 
 	//Function to logout user.
-	logout: async (req, res) => {
+	const logout = async (req, res) => {
 		try {
-			var token_ = req.body.devicetoken
+			const token_ = req.body.device_token
 			const deletetoken = await Token.findOneAndRemove({device_token: token_})
+			if(!deletetoken){
+				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty));
+			}
 			res.json(
-				responseFunction(responseMessage.MESSAGE.SUCCESS.errorBoolean, responseMessage.MESSAGE.SUCCESS.loggedOutSuccessful, responseCode.CODES.SUCCESS.OK));
-			// res.json({
-			// 	message: jsonSuccess[0].logoutOutSuccess,
-			// 	error: jsonSuccess[0].errorBoolean,
-			// 	responseCode: jsonSuccess[0].SuccessResponseCode,
-			// })
+				successResponse(SUCCESS.errorBoolean, SUCCESS.loggedOutSuccessful, responseCode.CODES.SUCCESS.OK));
+			
 		} catch (err) {
-			return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, err.message, responseCode.CODES.SERVER_ERROR.internalServerError));
-
-			//return res.status(500).json({ message: err.message });
+			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
 		}
-	},
+	}
 
-	forgotPassword: async (req, res) => {
+	const forgotPassword = async (req, res) => {
 		try {
 			const getemail = req.body.email
 			
 			const doc = await User.findOne({email: getemail})
 			if(!doc){
-				return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound));
+				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty));
 			}
-			    let otpCode = Math.floor(100000 + Math.random() * 900000);
-				let otpData = new OTP({
+			    const otpCode = Math.floor(100000 + Math.random() * 900000);
+				let date = new Date().getTime()+300*1000
+				
+				const otpData = new Otp({
 					email:getemail,
 					code:otpCode,
-					expireIn: new Date().getTime()+300*1000
-				})
-				
-				let otpResponse = await otpData.save();
-		
+					expireIn: date
+				});
+			           await otpData.save();
+			
 				/**************E-mail OTP *********/
 		
-				var transporter = nodemailer.createTransport({
+				const transporter = nodemailer.createTransport({
 						host: process.env.HOST_EMAIL_SMTP,
 						port: process.env.PORT_EMAIL_SMTP,
 						secure: true, // secure:true for port 465, secure:false for port 587
@@ -200,8 +173,8 @@ const userController = {
 						}
 				  });
 				  
-				  var mailOptions = {
-					from: 'donot@trigma.in',
+				  const mailOptions = {
+					from: fromMail,
 					to: getemail,
 					subject: 'OTP Verification',
 					text: 'Your one time verification code is: '+otpCode
@@ -209,106 +182,71 @@ const userController = {
 				  
 				  const info = await transporter.sendMail(mailOptions)
 				  if(!info){
-			       return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.somethingWrong, responseCode.CODES.SERVER_ERROR.internalServerError));
+			       return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.somethingWrong, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
 				}
 				  res.json(
-					responseFunction(responseMessage.MESSAGE.SUCCESS.errorBoolean, responseMessage.MESSAGE.SUCCESS.checkOTP, responseCode.CODES.SUCCESS.OK));
-					// res.json({
-					// 	message: jsonSuccess[0].checkOTP,
-				    //     error: jsonSuccess[0].errorBoolean,
-				    //     responseCode: jsonSuccess[0].SuccessResponseCode,
-					// 	data: {
-					// 		...doc._doc,
-					// 		password: " ",
-					// 	},
-					// });
-
+					successResponse(SUCCESS.errorBoolean, SUCCESS.checkOTP, responseCode.CODES.SUCCESS.OK));
 		} catch (err) {
-			return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, err.message, responseCode.CODES.SERVER_ERROR.internalServerError));
+			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
 
 			//return res.status(500).json({ message: err.message });
 		}
-	},
+	}
 
-    verifyOTP: async (req, res) => {
+    const verifyOTP = async (req, res) => {
 		try {
 			const otp = req.body.otpCode
 			
-			const doc = await OTP.findOne({email: req.body.email, code: otp})
+			const doc = await Otp.findOne({email: req.body.email, code: otp})
 			if(!doc){
-				return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.otpInvalid, responseCode.CODES.CLIENT_ERROR.unauthorized));
+				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.otpInvalid, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty));
 			}
 				let currentTime = new Date().getTime();
 				let diff = doc.expireIn - currentTime;
 				if(diff < 0){
-             	return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.otpExpired, responseCode.CODES.CLIENT_ERROR.unauthorized));
+             	return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.otpExpired, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty));
 				}	
 
 				res.json(
-					responseFunction(responseMessage.MESSAGE.SUCCESS.errorBoolean, responseMessage.MESSAGE.SUCCESS.otpVerified, responseCode.CODES.SUCCESS.OK));
-				// res.json({
-				// 	message: jsonSuccess[0].otpVerified,
-				//     error: jsonSuccess[0].errorBoolean,
-				// 	responseCode: jsonSuccess[0].SuccessResponseCode,
-
-				// })
+					successResponse(SUCCESS.errorBoolean, SUCCESS.otpVerified, responseCode.CODES.SUCCESS.OK));
 		} catch (err) {
-			return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, err.message, responseCode.CODES.SERVER_ERROR.internalServerError));
-
-			//return res.status(500).json({ message: err.message });
+			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
 		}
-	},
-	resetPassword: async (req, res) => {
+	}
+	const resetPassword = async (req, res) => {
 		try {
 			const password = req.body.password
-			const pass = await bcrypt.hash(password, 8);	
+			const pass = await bcrypt.hash(password, 10);	
 			let update = await User.findOneAndUpdate({email:req.body.email},{password: pass});
 			if(!update){	
-			return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, err.message, responseCode.CODES.SERVER_ERROR.internalServerError));
+			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
 			}
-
-			res.json(
-				responseFunction(responseMessage.MESSAGE.SUCCESS.errorBoolean, responseMessage.MESSAGE.SUCCESS.passUpdated, responseCode.CODES.SUCCESS.OK));
-		//    res.status(200).json({
-		// 		message: jsonSuccess[0].passUpdated,
-		// 		error: jsonSuccess[0].errorBoolean,
-		// 		responseCode: jsonSuccess[0].SuccessResponseCode,
-		// 	})
-
+            res.json(
+				successResponse(SUCCESS.errorBoolean, SUCCESS.passUpdated, responseCode.CODES.SUCCESS.OK));
 		} catch (err) {
-			return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, err.message, responseCode.CODES.SERVER_ERROR.internalServerError));
-
-			//return res.status(500).json({ message: err.message });
+			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
 		}
-	},
+	}
 
 
     //Function to get the user
-	getUser: async (req, res) => {
+	const getUser = async (req, res) => {
 		try {
 			const user = await User.findById(req.user.id);
 			if (!user) {
-				return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, responseMessage.MESSAGE.ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound));
+				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty));
 			}
-
+           const  data = {
+				...user._doc,
+				password: ""
+			}
 			res.json(
-				responseFunction(responseMessage.MESSAGE.SUCCESS.errorBoolean, responseMessage.MESSAGE.SUCCESS.getUser, responseCode.CODES.SUCCESS.OK));
+				successResponse(SUCCESS.errorBoolean, SUCCESS.getUser, responseCode.CODES.SUCCESS.OK, data));
 
-
-			// res.json(
-			// 	{
-			//     message: "User is fetched!",
-			// 	error: jsonSuccess[0].errorBoolean,
-			// 	responseCode: jsonSuccess[0].SuccessResponseCode,
-			// 	data: user
-			// 	}
-			// );
 		} catch (err) {
-			return res.json(responseFunction(responseMessage.MESSAGE.ERROR.errorBoolean, err.message, responseCode.CODES.SERVER_ERROR.internalServerError));
-
-			//return res.status(500).json({ message: err.message });
+			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
 		}
-	},
+	}
 
     // subscriptionPayment: async (req,res) =>{
 	// 	    const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
@@ -391,12 +329,12 @@ const userController = {
 	// 	}
 	// }
 	
-}
+//}
 
 //Function to to create access token.
 const createAccessToken = (user) => {
 	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1d" });
 };
 
-module.exports = userController;
+module.exports = {signUp, login, logout, approveAccount, forgotPassword, verifyOTP, resetPassword, getUser};
 

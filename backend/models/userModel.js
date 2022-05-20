@@ -51,21 +51,17 @@ const userJoiSchema = Joi.object().keys({
 
   const userLogoutJoiSchema = Joi.object().keys({
     
-    devicetoken: Joi.string().required(),
+    device_token: Joi.string().required(),
 
   })
 
   const userForgotPasswordJoiSchema = Joi.object().keys({
-    
-    email: Joi.string().required(),
-
+    email: Joi.string().email().required(),
   })
 
 //Exporting file and set collection name user.
 const User = mongoose.model("User", userSchema);
 module.exports = {User, userJoiSchema, userLoginJoiSchema, userLogoutJoiSchema, userForgotPasswordJoiSchema, resetPasswordJoiSchema}
-// module.exports = userLoginJoiSchema
-// module.exports = userLogoutJoiSchema
-// module.exports = userForgotPasswordJoiSchema
+
 
 

@@ -1,6 +1,5 @@
 const Payment = require("../../models/subscriptionPayment")
 const checkSubscription = async (req, res, next) => {
-    console.log("00000000000000")
 	try {
 		const checkPayment = await Payment.findOne({ userId: req.user.id });
         if(checkPayment){ 
@@ -11,7 +10,6 @@ const checkSubscription = async (req, res, next) => {
 		if(currentDate.getTime() > expiryDateOld.getTime()){
             return res.json({message: jsonError[0].packExpired, error: jsonError[0].errorBoolean, responseCode: jsonError[0].unauthorized}); 
 			}
-        console.log("next>>>>")
 		next();
 	} catch (err) {
 		return res.status(500).json({ msg: err.message });

@@ -1,0 +1,17 @@
+.dot {
+    height: 8px;
+    width: 8px;
+    background-color: green;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .text_margin{
+    margin-left: 10%;
+    font-size: 85%;
+    margin-top: 50%;
+  }
+
+  .list_margin{
+    margin-left: 5%;
+    font-size: 95%;
+  }

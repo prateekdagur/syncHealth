@@ -5,10 +5,9 @@ const config = require('config');
 module.exports = function () {
    
     
-    const db_name = config.get('database.name');   
+    const db_name = config.get('database.name');  
     const db_user = config.get('database.user');
     const db_pass = config.get('database.pass');
-    
     conn_str = `mongodb://localhost/${db_name}`;
 
   

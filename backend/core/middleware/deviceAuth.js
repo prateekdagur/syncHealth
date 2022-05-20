@@ -1,18 +1,18 @@
 const Token = require("../../models/tokenModel")
+const {ERROR} = require("../response/responseMessage")
+const responseCode = require("../response/responseCode")
 
 const deviceAuth = async (req, res, next) => {
-    console.log("00000000000000")
 	try {
 		const user = await Token.findOne({ userId: req.user.id });
-        console.log(user.device_token, "ddddddddddddd")
-		if (user.device_token != req.body.deviceToken) {
-            console.log("cccccccccccc")
-			return res.status(400).json({ msg: "Access denied" });
+		if (user.device_token != req.body.device_token) {
+			return res.json(errorFunction(ERROR.errorBoolean, ERROR.accessDenied, "", responseCode.CODES.CLIENT_ERROR.unauthorized, []))
+
 		}
-        console.log("ffffffffffff")
 		next();
 	} catch (err) {
-		return res.status(500).json({ msg: err.message });
+		return res.json(errorResponse(ERROR.errorBoolean, err.message, "",  responseCode.CODES.SERVER_ERROR.internalServerError, []));
+		
 	}
 };
 
