@@ -1,7 +1,7 @@
 const Subcription = require("../models/admin/subscription")
 const Payment = require("../models/subscriptionPayment")
-const responseMessage = require("../core/response/responseMessage")
-const responseCode = require("../core/response/responseCode")
+const responseMessage = require("../core/utilities/messages")
+const responseCode = require("../core/utilities/statusCode")
 
 const paymentController = {
     subscriptionPayment: async (req,res) =>{

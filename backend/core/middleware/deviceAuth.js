@@ -1,6 +1,6 @@
 const Token = require("../../models/tokenModel")
-const {ERROR} = require("../response/responseMessage")
-const responseCode = require("../response/responseCode")
+const {ERROR} = require("../utilities/messages")
+const responseCode = require("../utilities/statusCode")
 
 const deviceAuth = async (req, res, next) => {
 	try {

@@ -26,7 +26,7 @@ const SUCCESS = {
     loginSuccess:  "Logged in Successfully",
     getUser: "User is fetched",
     loggedOutSuccessful: "logged out Successfully",
-    checkMail: "Please check your email id for Link",
+    checkMail: "We have sent a mail, please check!",
     checkOTP: "Please check your email id for OTP.",
     accountApprove: "Your account has been approved",
     otpVerified:  "OTP Verified Successfully",

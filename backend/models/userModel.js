@@ -3,22 +3,31 @@ let Joi = require('joi')
 //Model for user details.
 const userSchema = new mongoose.Schema(
 	{
-		name: {
-			type: String,
-			required: true,
+		first_name: {
+			type: String	
 		},
+		last_name: {
+			type: String
+		},
+		age: {
+			type: Number
+		},
+		// dob: {
+		// 	type: String
+		// },
 		email: {
-			type: String,
-			required: true,
-			unique: true,
+			type: String
 		},
 		password: {
-			type: String,
-			required: true,
+			type: String
 		},
-		verified:{
-          type: Boolean,
-		  default: false
+		is_verified:{
+         	type: Boolean,
+		    default: false
+		},
+		is_approved_by_admin:{
+		  type: Boolean,
+		  default: true
 		}
 		// modifiedate: {
 		// 	type: Date,
@@ -31,8 +40,10 @@ const userSchema = new mongoose.Schema(
 );
 
 const userJoiSchema = Joi.object().keys({
-    name: Joi.string().required(),
-    email: Joi.string().email().required(),
+    first_name: Joi.string().max(10).required(),
+    last_name: Joi.string().max(10).required(),
+    age: Joi.number().required(),
+    email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ['com', 'net'] } }).required(),
     password: Joi.string().required()
   })
 

@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const {ERROR} = require("../response/responseMessage")
-const responseCode = require("../response/responseCode")
+const {ERROR} = require("../utilities/messages")
+const responseCode = require("../utilities/statusCode")
 const dataEmpty = []
 
  const auth = (req, res, next) => {

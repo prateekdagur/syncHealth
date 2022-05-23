@@ -4,13 +4,13 @@ let Joi = require('joi')
 const otpSchema = new mongoose.Schema(
 	{
 		email: {
-			type: String,
+			type: String
 		},
 		code: {
-			type: String,
+			type: String
 		},
 		expireIn: {
-			type: String,
+			type: String
 		},
 	},
 	{

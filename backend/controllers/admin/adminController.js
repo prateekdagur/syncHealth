@@ -1,7 +1,7 @@
 const Subcription = require("../../models/admin/subscription")
-const responseMessage = require("../../core/response/responseMessage")
-const responseCode = require("../../core/response/responseCode")
-const responseFunction = require("../../core/validations/successResponse")
+const responseMessage = require("../../core/utilities/messages")
+const responseCode = require("../../core/utilities/statusCode")
+const {errorResponse, successResponse} = require("../../core/utilities/response")
 
 
 const adminController = {

@@ -1,131 +1,99 @@
 "use strict";
 const nodemailer = require('nodemailer');
 const Token = require("../models/tokenModel");
+const {sendEmail} = require('../core/utilities/emailService');
 const {Otp} = require("../models/otpModel");
 const {User} = require("../models/userModel");
 const config = require('config')
-const successResponse = require("../core/validations/successResponse")
-const errorResponse = require("../core/validations/errorResponse")
+const {errorResponse, successResponse} = require("../core/utilities/response")
 //const validateForm = require("../core/middleware/validateForm")
 const Subcription = require("../models/admin/subscription")
 const Payment = require("../models/subscriptionPayment")
 const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const {ERROR, SUCCESS} = require("../core/response/responseMessage")
-const responseCode = require("../core/response/responseCode");
+const {ERROR, SUCCESS} = require("../core/utilities/messages")
+const responseCode = require("../core/utilities/statusCode");
 //const { use } = require('../routes/userRoutes');
 //const userController = {
 	//Function to register the user.
 	const dataEmpty = config.get('dataEmpty'); 
 	const emptyValidationsErrors = config.get('emptyValidationsErrors'); 
-
+	//const fromMail = config.get('fromMail');
+	const signUpLinkSubject = config.get('linkSubject'); 
+	const approveAccountUrl = config.get('approveAccountUrl'); 
 	
 	const signUp = async (req, res) => {
 		try {
-		    const { name, email, password } = req.body;
-			const db_email = config.get('fromMail');
-			const db_linkSubject = config.get('linkSubject'); 
-			const db_approveAccountUrl = config.get('approveAccountUrl'); 
-
-			 const user = await User.findOne({email: email});
+		    const { first_name, last_name, age, email, password } = req.body;
+			const user = await User.findOne({email: email});
 			if (user) {
-				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.emailExist, responseCode.CODES.CLIENT_ERROR.valueAlreadyExist, dataEmpty));
+			errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.emailExist, responseCode.CODES.CLIENT_ERROR.valueAlreadyExist, dataEmpty, res)
 			}
-
-            const hash = await bcrypt.hash(password, saltRounds);
-
-			//Saving user.
+			const hash = await bcrypt.hash(password, saltRounds);
+ 			//Saving user.
 			const newUser = new User({
-				name, email, password: hash
-			
+				first_name, last_name, age, email, password: hash
 			});
-
 			await newUser.save();
-
-           const  transporter = nodemailer.createTransport({
-			host: process.env.HOST_EMAIL_SMTP,
-			port: process.env.PORT_EMAIL_SMTP,
-			secure: true, 
-			auth: {
-				user: process.env.USER_EMAIL_SMTP,
-				pass: process.env.PASSWORD_EMAIL_SMTP,
+	    	const mailOptions = {
+			to: email,
+			subject: signUpLinkSubject,
+			html: `<p>Click <a href="${approveAccountUrl}/${newUser._id}">here</a> to approve your account</p>`
+	       };
+			await sendEmail(mailOptions)
+		   } catch (err) {
+		    errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
 			}
-	  });
-	
-	  const mailOptions = {
-	    from: db_email,
-		to: email,
-		subject: db_linkSubject,
-		html: `<p>Click <a href="${db_approveAccountUrl}/${newUser._id}">here</a> to approve your account</p>`
-	  };
-	  
-	      const info = await transporter.sendMail(mailOptions)
-		  if(!info){
-			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.somethingWrong, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
-		  }
-
-		  res.json(
-			successResponse(SUCCESS.errorBoolean, SUCCESS.checkMail, responseCode.CODES.SUCCESS.created, dataEmpty));
-		} catch (err) {
-			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
 		}
-	}
-
 
 	const approveAccount = async (req, res) => {
 		try {
 			const id_= req.params.id
 			if(!id_){
-				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.idRequired, responseCode.CODES.CLIENT_ERROR.badRequest, dataEmpty));
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.idRequired, responseCode.CODES.CLIENT_ERROR.badRequest, dataEmpty, res);
 			}
 			const updatestatus = await User.findOneAndUpdate({_id: id_}, {
-				verified: true
+				is_verified: true
 			})
-
-			res.json(
-				successResponse(SUCCESS.errorBoolean, SUCCESS.accountApprove, responseCode.CODES.SUCCESS.created));
-		} catch (err) {
-			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
-            //return res.status(500).json({ message: err.message });
+				successResponse(SUCCESS.errorBoolean, SUCCESS.accountApprove, responseCode.CODES.SUCCESS.created);
+			} catch (err) {
+			errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+			}
 		}
-	}
 	
 	//Function to login user.
 	const login = async (req, res) => {
 		try {
 			const { email, password, device_token } = req.body;
 			console.log(device_token)
-
-			//Finding user's email.
+            //Finding user's email.
 			const user = await User.findOne({ email });
 			if (!user) {
-				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty));
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
 			}
-			if(user.status === false){
-				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.accountNotApprove, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty));
+			if(user.is_verified === false){
+			     errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.accountNotApprove, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
 			}
 			const pass = await bcrypt.compare(password, user.password)
 			if (!pass) {
-				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.incorrectPass, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty));
-            } 
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.incorrectPass, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
+            }
 			//Creating access token.
 			const accesstoken = createAccessToken({ id: user._id });
             if(accesstoken){
-           const saveToken = new Token({
+          	const saveToken = new Token({
 	                   userId: user._id,
 	                   device_token: device_token,
 	                   access_token: accesstoken
                      })
 					 await saveToken.save();
-             } 
-
-			 res.json(
-				successResponse(SUCCESS.errorBoolean, SUCCESS.loginSuccess, responseCode.CODES.SUCCESS.accepted));
-		} catch (err) {
-			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
+              } 
+			   successResponse(SUCCESS.errorBoolean, SUCCESS.loginSuccess, responseCode.CODES.SUCCESS.accepted, res);
+		  } catch (err) {
+			  errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+		  }
 		}
-	}
 
 	//Function to logout user.
 	const logout = async (req, res) => {
@@ -133,100 +101,74 @@ const responseCode = require("../core/response/responseCode");
 			const token_ = req.body.device_token
 			const deletetoken = await Token.findOneAndRemove({device_token: token_})
 			if(!deletetoken){
-				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty));
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
 			}
-			res.json(
-				successResponse(SUCCESS.errorBoolean, SUCCESS.loggedOutSuccessful, responseCode.CODES.SUCCESS.OK));
+		        successResponse(SUCCESS.errorBoolean, SUCCESS.loggedOutSuccessful, responseCode.CODES.SUCCESS.OK, res);
 			
-		} catch (err) {
-			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
+			} catch (err) {
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+			}
 		}
-	}
 
 	const forgotPassword = async (req, res) => {
 		try {
-			const getemail = req.body.email
-			
-			const doc = await User.findOne({email: getemail})
+			const email = req.body.email
+			const doc = await User.findOne({email: email})
 			if(!doc){
-				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty));
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
 			}
 			    const otpCode = Math.floor(100000 + Math.random() * 900000);
 				let date = new Date().getTime()+300*1000
 				
 				const otpData = new Otp({
-					email:getemail,
+					email:email,
 					code:otpCode,
 					expireIn: date
 				});
 			           await otpData.save();
 			
 				/**************E-mail OTP *********/
-		
-				const transporter = nodemailer.createTransport({
-						host: process.env.HOST_EMAIL_SMTP,
-						port: process.env.PORT_EMAIL_SMTP,
-						secure: true, // secure:true for port 465, secure:false for port 587
-						auth: {
-							user: process.env.USER_EMAIL_SMTP,
-							pass: process.env.PASSWORD_EMAIL_SMTP,
-						}
-				  });
-				  
-				  const mailOptions = {
-					from: fromMail,
-					to: getemail,
-					subject: 'OTP Verification',
-					text: 'Your one time verification code is: '+otpCode
+				const mailOptions = {
+					to: email,
+					subject: 'OTP',
+					html: 'Your one time verification code is: '+otpCode
 				  };
-				  
-				  const info = await transporter.sendMail(mailOptions)
-				  if(!info){
-			       return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.somethingWrong, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
-				}
-				  res.json(
-					successResponse(SUCCESS.errorBoolean, SUCCESS.checkOTP, responseCode.CODES.SUCCESS.OK));
-		} catch (err) {
-			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
-
-			//return res.status(500).json({ message: err.message });
-		}
-	}
+			    await sendEmail(mailOptions)
+		    } catch (err) {
+			 errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+			}
+	   }
 
     const verifyOTP = async (req, res) => {
 		try {
 			const otp = req.body.otpCode
-			
 			const doc = await Otp.findOne({email: req.body.email, code: otp})
 			if(!doc){
-				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.otpInvalid, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty));
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.otpInvalid, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
 			}
 				let currentTime = new Date().getTime();
 				let diff = doc.expireIn - currentTime;
 				if(diff < 0){
-             	return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.otpExpired, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty));
+             	errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.otpExpired, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
 				}	
-
-				res.json(
-					successResponse(SUCCESS.errorBoolean, SUCCESS.otpVerified, responseCode.CODES.SUCCESS.OK));
-		} catch (err) {
-			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
+				successResponse(SUCCESS.errorBoolean, SUCCESS.otpVerified, responseCode.CODES.SUCCESS.OK, res);
+			} catch (err) {
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+			}
 		}
-	}
 	const resetPassword = async (req, res) => {
 		try {
 			const password = req.body.password
 			const pass = await bcrypt.hash(password, 10);	
 			let update = await User.findOneAndUpdate({email:req.body.email},{password: pass});
 			if(!update){	
-			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
 			}
-            res.json(
-				successResponse(SUCCESS.errorBoolean, SUCCESS.passUpdated, responseCode.CODES.SUCCESS.OK));
-		} catch (err) {
-			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
+        		successResponse(SUCCESS.errorBoolean, SUCCESS.passUpdated, responseCode.CODES.SUCCESS.OK, res);
+			} catch (err) {
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+			}
 		}
-	}
 
 
     //Function to get the user
@@ -234,19 +176,18 @@ const responseCode = require("../core/response/responseCode");
 		try {
 			const user = await User.findById(req.user.id);
 			if (!user) {
-				return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty));
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
 			}
-           const  data = {
+            const  data = {
 				...user._doc,
 				password: ""
 			}
-			res.json(
-				successResponse(SUCCESS.errorBoolean, SUCCESS.getUser, responseCode.CODES.SUCCESS.OK, data));
+				successResponse(SUCCESS.errorBoolean, SUCCESS.getUser, responseCode.CODES.SUCCESS.OK, data, res);
 
-		} catch (err) {
-			return res.json(errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty));
+			} catch (err) {
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+			}
 		}
-	}
 
     // subscriptionPayment: async (req,res) =>{
 	// 	    const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);

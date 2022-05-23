@@ -4,21 +4,19 @@ let Joi = require('joi')
 const subscriptionPaymentSchema = new mongoose.Schema(
 	{
 		userId: {
-			type: String,
-			required: true,
+			type: String
 		},
 		transationId: {
-			type: String,
+			type: String
 		},
 		subscriptionId: {
-			type: String,	
+			type: String
 		},
 		amountPaid: {
-			type: String,	
+			type: String
 		},
 		paymentStatus: {
-			type: String,
-			required: true,
+			type: String
 		},
 		expiryDate: {
 			type: Date

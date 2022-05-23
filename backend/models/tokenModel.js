@@ -3,16 +3,13 @@ const mongoose = require("mongoose");
 const tokenSchema = new mongoose.Schema(
 	{
 		userId: {
-			type: String,
-			required: true,
+			type: String
 		},
 		device_token: {
-			type: String,
-			required: true,
+			type: String
 		},
 		access_token: {
-			type: String,
-			required: true,
+			type: String
 		},
 	},
 	{
