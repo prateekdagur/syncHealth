@@ -1,9 +1,10 @@
 "use strict";
-const nodemailer = require('nodemailer');
+const moment = require('moment'); // require
 const Token = require("../models/tokenModel");
 const {sendEmail} = require('../core/utilities/emailService');
 const {Otp} = require("../models/otpModel");
 const {User} = require("../models/userModel");
+const {Email} = require("../models/emailsModel");
 const config = require('config')
 const {errorResponse, successResponse} = require("../core/utilities/response")
 //const validateForm = require("../core/middleware/validateForm")
@@ -13,7 +14,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const {ERROR, SUCCESS} = require("../core/utilities/messages")
-const responseCode = require("../core/utilities/statusCode");
+const statusCode = require("../core/utilities/statusCode");
 //const { use } = require('../routes/userRoutes');
 //const userController = {
 	//Function to register the user.
@@ -22,28 +23,39 @@ const responseCode = require("../core/utilities/statusCode");
 	//const fromMail = config.get('fromMail');
 	const signUpLinkSubject = config.get('linkSubject'); 
 	const approveAccountUrl = config.get('approveAccountUrl'); 
-	
+
 	const signUp = async (req, res) => {
 		try {
-		    const { first_name, last_name, age, email, password } = req.body;
+		    const { first_name, last_name, gender, dob, bmi, category_id, role_id, email, password } = req.body;
 			const user = await User.findOne({email: email});
 			if (user) {
-			errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.emailExist, responseCode.CODES.CLIENT_ERROR.valueAlreadyExist, dataEmpty, res)
+			errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.emailExist, statusCode.CODES.CLIENT_ERROR.valueAlreadyExist, dataEmpty, res);
+		   exit() 
+		}
+			const currentData = moment()
+            const birthDate = moment(dob, 'YYYY/MM/DD');
+		    var age = currentData.format('YYYY') - birthDate.format('YYYY')
+			const m = currentData.format('MM') - birthDate.format('MM');
+			if (m < 0 || (m === 0 && today.format('DD') < birthDate.format('DD'))){
+				age--
 			}
+		    age;
 			const hash = await bcrypt.hash(password, saltRounds);
  			//Saving user.
 			const newUser = new User({
-				first_name, last_name, age, email, password: hash
+				first_name, last_name, gender, age, dob, bmi, category_id, role_id, email, password: hash
 			});
-			await newUser.save();
+            await newUser.save();
+
+
 	    	const mailOptions = {
 			to: email,
 			subject: signUpLinkSubject,
 			html: `<p>Click <a href="${approveAccountUrl}/${newUser._id}">here</a> to approve your account</p>`
 	       };
-			await sendEmail(mailOptions)
+		   sendEmail(mailOptions, res)
 		   } catch (err) {
-		    errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+		    errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
 			}
 		}
 
@@ -51,14 +63,14 @@ const responseCode = require("../core/utilities/statusCode");
 		try {
 			const id_= req.params.id
 			if(!id_){
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.idRequired, responseCode.CODES.CLIENT_ERROR.badRequest, dataEmpty, res);
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.idRequired, statusCode.CODES.CLIENT_ERROR.badRequest, dataEmpty, res);
 			}
 			const updatestatus = await User.findOneAndUpdate({_id: id_}, {
 				is_verified: true
 			})
-				successResponse(SUCCESS.errorBoolean, SUCCESS.accountApprove, responseCode.CODES.SUCCESS.created);
+				successResponse(SUCCESS.errorBoolean, SUCCESS.accountApprove, statusCode.CODES.SUCCESS.created, dataEmpty, res);
 			} catch (err) {
-			errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+			errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
 			}
 		}
 	
@@ -70,14 +82,14 @@ const responseCode = require("../core/utilities/statusCode");
             //Finding user's email.
 			const user = await User.findOne({ email });
 			if (!user) {
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
+				return errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, statusCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
 			}
 			if(user.is_verified === false){
-			     errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.accountNotApprove, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
+			    return errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.accountNotApprove, statusCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
 			}
 			const pass = await bcrypt.compare(password, user.password)
 			if (!pass) {
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.incorrectPass, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
+				return errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.incorrectPass, statusCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
             }
 			//Creating access token.
 			const accesstoken = createAccessToken({ id: user._id });
@@ -89,9 +101,9 @@ const responseCode = require("../core/utilities/statusCode");
                      })
 					 await saveToken.save();
               } 
-			   successResponse(SUCCESS.errorBoolean, SUCCESS.loginSuccess, responseCode.CODES.SUCCESS.accepted, res);
+			   successResponse(SUCCESS.errorBoolean, SUCCESS.loginSuccess, statusCode.CODES.SUCCESS.accepted, dataEmpty, res);
 		  } catch (err) {
-			  errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+			  errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
 		  }
 		}
 
@@ -101,22 +113,25 @@ const responseCode = require("../core/utilities/statusCode");
 			const token_ = req.body.device_token
 			const deletetoken = await Token.findOneAndRemove({device_token: token_})
 			if(!deletetoken){
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, statusCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
 			}
-		        successResponse(SUCCESS.errorBoolean, SUCCESS.loggedOutSuccessful, responseCode.CODES.SUCCESS.OK, res);
+		        successResponse(SUCCESS.errorBoolean, SUCCESS.loggedOutSuccessful, statusCode.CODES.SUCCESS.OK, dataEmpty, res);
 			
 			} catch (err) {
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
 			}
 		}
 
 	const forgotPassword = async (req, res) => {
 		try {
 			const email = req.body.email
-			const doc = await User.findOne({email: email})
-			if(!doc){
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
-			}
+			const user = await User.findOne({email: email})
+			if(!user){
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, statusCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
+			exit()}
+			if(user.is_verified === false){
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.accountNotApprove, statusCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
+			   exit()}
 			    const otpCode = Math.floor(100000 + Math.random() * 900000);
 				let date = new Date().getTime()+300*1000
 				
@@ -133,9 +148,9 @@ const responseCode = require("../core/utilities/statusCode");
 					subject: 'OTP',
 					html: 'Your one time verification code is: '+otpCode
 				  };
-			    await sendEmail(mailOptions)
+			    await sendEmail(mailOptions, res)
 		    } catch (err) {
-			 errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+			 errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
 			}
 	   }
 
@@ -144,16 +159,17 @@ const responseCode = require("../core/utilities/statusCode");
 			const otp = req.body.otpCode
 			const doc = await Otp.findOne({email: req.body.email, code: otp})
 			if(!doc){
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.otpInvalid, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
-			}
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.otpInvalid, statusCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
+			  exit()}
 				let currentTime = new Date().getTime();
 				let diff = doc.expireIn - currentTime;
 				if(diff < 0){
-             	errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.otpExpired, responseCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
-				}	
-				successResponse(SUCCESS.errorBoolean, SUCCESS.otpVerified, responseCode.CODES.SUCCESS.OK, res);
+             	errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.otpExpired, statusCode.CODES.CLIENT_ERROR.unauthorized, dataEmpty, res);
+				exit()
+			}	
+				successResponse(SUCCESS.errorBoolean, SUCCESS.otpVerified, statusCode.CODES.SUCCESS.OK, dataEmpty, res);
 			} catch (err) {
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
 			}
 		}
 	const resetPassword = async (req, res) => {
@@ -162,11 +178,11 @@ const responseCode = require("../core/utilities/statusCode");
 			const pass = await bcrypt.hash(password, 10);	
 			let update = await User.findOneAndUpdate({email:req.body.email},{password: pass});
 			if(!update){	
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
-			}
-        		successResponse(SUCCESS.errorBoolean, SUCCESS.passUpdated, responseCode.CODES.SUCCESS.OK, res);
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+			exit()}
+        		successResponse(SUCCESS.errorBoolean, SUCCESS.passUpdated, statusCode.CODES.SUCCESS.OK, dataEmpty, res);
 			} catch (err) {
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
 			}
 		}
 
@@ -176,16 +192,21 @@ const responseCode = require("../core/utilities/statusCode");
 		try {
 			const user = await User.findById(req.user.id);
 			if (!user) {
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, responseCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noUser, statusCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res);
 			}
-            const  data = {
-				...user._doc,
-				password: ""
+			const userDetails = await User.findOne({_id: req.user.id})
+				.populate({ path: "category_id",  select:
+				'category'}).populate({path: "role_id", select: 'user_role'});
+
+            const  data = [
+			{	...userDetails._doc,
+				password: "",
 			}
-				successResponse(SUCCESS.errorBoolean, SUCCESS.getUser, responseCode.CODES.SUCCESS.OK, data, res);
+			]
+				successResponse(SUCCESS.errorBoolean, SUCCESS.getUser, statusCode.CODES.SUCCESS.OK, data, res);
 
 			} catch (err) {
-				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, responseCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+				errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
 			}
 		}
 

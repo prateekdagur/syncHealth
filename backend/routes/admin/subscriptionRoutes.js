@@ -1,6 +1,6 @@
 const router = require("express").Router();
-const adminController = require("../../controllers/admin/adminController");
+const {createSubscription} = require("../../controllers/admin/subscriptionController");
 const validateMiddleware = require('../../core/middleware/validateRequest')
-const subscriptionJoiSchema = require('../../models/admin/subscription')
-router.post("/createSubscription", validateMiddleware(subscriptionJoiSchema), adminController.createAdminSubscription);
+const {subscriptionJoiSchema} = require('../../models/admin/subscription')
+router.post("/add", validateMiddleware(subscriptionJoiSchema), createSubscription);
 module.exports = router;

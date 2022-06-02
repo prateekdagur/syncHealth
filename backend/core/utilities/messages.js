@@ -1,6 +1,11 @@
 const ERROR = {
     errorBoolean: true,
+    questionExist: "This Question already exists",
+    noCategory: "No categories exists",
+    noQuestion: "No Questions exists",
     emailExist:  "This user is already exists.",
+    categoryExist: "This Category already exists",
+    roleExist: "This role already exists.",
     emailNotExist: "This email does not exist.",
     somethingWrong: "Something Went Wrong. Please try again!",
     noUser: "User does not exist",
@@ -17,21 +22,30 @@ const ERROR = {
     otpRequired: "OTP is required",
     noPayment: "You do not have any subscriptions",
     packExpired: "Your Subscription has expired.",
-    subscriptionCreated: "Subscription has been created.",
-    subscriptionAlreadyExist: "Subscription already exist"
+    subscriptionAlreadyExist: "Subscription already exist",
+    nosubscription: "No subscriptions available",
 }
 
 const SUCCESS = {
     errorBoolean: false,
+    success: "Success",
+    SubscriptionTrial: "Enjoy your three months trial",
+    subscriptionFetched: "Subscription info fetched",
+    questionAdded: "Question added successfully",
+    QusetionsFetched: "Questions are fetched successfully",
     loginSuccess:  "Logged in Successfully",
+    categoryFetched: "Categories are fetched successfully",
     getUser: "User is fetched",
+    getAllUser: "User are fetched",
+    roleAdded: "Role added successfully",
+    categoryAdded: "Category added successfully",
     loggedOutSuccessful: "logged out Successfully",
     checkMail: "We have sent a mail, please check!",
     checkOTP: "Please check your email id for OTP.",
     accountApprove: "Your account has been approved",
     otpVerified:  "OTP Verified Successfully",
     passUpdated: "Password is Updated successfully.",
-   
+    subscriptionCreated: "Subscription has been created.",   
    }
 
 module.exports = {ERROR, SUCCESS}

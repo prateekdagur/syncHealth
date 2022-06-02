@@ -1,6 +1,6 @@
 //let createValidator = require('../validations/createValidator')
-const errorResponse = require('../utilities/response')
-const responseCode = require("../utilities/statusCode")
+const {errorResponse} = require('../utilities/response')
+const statusCode = require("../../core/utilities/statusCode")
 const {ERROR} = require("../utilities/messages")
 
 let validateRequest = (schema) =>
@@ -11,12 +11,12 @@ let validateRequest = (schema) =>
       if(requestValidated.error){
         const array = (requestValidated.error.details || [])
         const validationMessages = array.map(er => er.message)
-        errorResponse(ERROR.errorBoolean,  validationMessages, "", responseCode.CODES.CLIENT_ERROR.badRequest, [], res)
+       return errorResponse(ERROR.errorBoolean,  validationMessages, "", statusCode.CODES.CLIENT_ERROR.badRequest, [], res)
       } else {
         next()
       }
     } catch (err){
-    errorResponse(ERROR.errorBoolean, err.message, "", responseCode.CODES.SERVER_ERROR.internalServerError, [], res);
+    return errorResponse(ERROR.errorBoolean, err.message, "", statusCode.CODES.SERVER_ERROR.internalServerError, [], res);
 
     } 
   }

@@ -24,7 +24,7 @@ const otpJoiSchema = Joi.object().keys({
 
   })
 //Exporting file and set collection name user.
-const Otp = mongoose.model("Otp", otpSchema);
+const Otp = mongoose.model("otp", otpSchema);
 
 module.exports = {Otp, otpJoiSchema}
 

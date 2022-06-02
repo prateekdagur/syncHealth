@@ -31,5 +31,5 @@ const subscriptionJoiSchema = Joi.object().keys({
   })
 
 //Exporting file and set collection name user.
-module.exports = mongoose.model("subscriptions", subscriptionSchema);
-module.exports = subscriptionJoiSchema
+const Subscription = mongoose.model("subscription", subscriptionSchema);
+module.exports = {Subscription, subscriptionJoiSchema}

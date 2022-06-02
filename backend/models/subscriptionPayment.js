@@ -33,7 +33,7 @@ const subscriptionPaymentJoiSchema = Joi.object().keys({
     userId: Joi.string().required(),
   })
 //Exporting file and set collection name user.
-module.exports = mongoose.model("subscriptionPayment", subscriptionPaymentSchema);
-module.exports = subscriptionPaymentJoiSchema
+const Payment = mongoose.model("subscription_payment", subscriptionPaymentSchema);
+module.exports = {Payment, subscriptionPaymentJoiSchema}
 
 

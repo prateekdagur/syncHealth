@@ -1,13 +1,18 @@
-const Subcription = require("../models/admin/subscription")
-const Payment = require("../models/subscriptionPayment")
-const responseMessage = require("../core/utilities/messages")
-const responseCode = require("../core/utilities/statusCode")
 
-const paymentController = {
-    subscriptionPayment: async (req,res) =>{
+const {Subscription} = require("../models/admin/subscription")
+const {Payment} = require("../models/subscriptionPayment")
+const {ERROR, SUCCESS} = require("../core/utilities/messages")
+const statusCode = require("../core/utilities/statusCode");
+const {errorResponse, successResponse} = require("../core/utilities/response")
+const config = require('config')
+const dataEmpty = config.get('dataEmpty'); 
+const emptyValidationsErrors = config.get('emptyValidationsErrors'); 
+
+
+    const subscriptionPayment = async (req,res) =>{
         const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
         try {
-        let planData = await Subcription.findOne({_id:req.body.planId});  
+        let planData = await Subscription.findOne({_id:req.body.planId});  
         let checkPayment = await Payment.findOne({userId: req.body.userId, paymentStatus:'SUCCESS'}).sort({_id:-1});
         let currentDate = new Date();
         let expiryDate = "";
@@ -55,10 +60,10 @@ const paymentController = {
           })
           .catch(err => res.status(200).json({statusText : "err",message:"Error making payment"}))
       } catch (err) {
-        res.send(res.status(200).json({statusText : "err", message:"Error outside try"}));
+        errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
     }
-   },
-   freeSubscription: async (req,res) =>{
+   }
+   const SubscriptionTrial = async (req,res) =>{
         try {  
         let currentDate = new Date();
          expiryDate = new Date(currentDate.setMonth(currentDate.getMonth()+ 01));
@@ -68,36 +73,10 @@ const paymentController = {
             expiryDate: expiryDate
            });
            await payment.save();
-          
-      } catch (err) {
-        res.send(res.status(200).json({statusText : "err", message:"Error outside try"}));
-    }
-},
-
-checkSubscription: async (req, res) => {
-    console.log("00000000000000")
-    try {
-        const checkPayment = await Payment.findOne({ userId: req.user.id });
-        if(checkPayment){ 
-            return res.json({message: jsonError[0].noPayment, error: jsonError[0].errorBoolean, responseCode: jsonError[0].unauthorized});        
-        }
-        let currentDate = new Date();
-        expiryDateOld = checkPayment.expiryDate;
-        if(currentDate.getTime() > expiryDateOld.getTime()){
-            return res.json({message: jsonError[0].packExpired, error: jsonError[0].errorBoolean, responseCode: jsonError[0].unauthorized}); 
-        } 
-        res.json({
-            message: "Success",
-            error: jsonSuccess[0].errorBoolean, 
-            responseCode: jsonSuccess[0].SuccessResponseCode
-
-        })
-
-    } catch (err) {
-        return res.status(500).json({ msg: err.message });
+         successResponse(SUCCESS.errorBoolean, SUCCESS.SubscriptionTrial, statusCode.CODES.SUCCESS.created, data, res)
+         } catch (err) {
+        errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
     }
 }
 
-}
-
-module.exports = paymentController;
+module.exports = {subscriptionPayment, SubscriptionTrial};

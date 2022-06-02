@@ -8,7 +8,7 @@ swaggerDocument = require("./core/swagger.json");
 var app = express();
 
 app.use(bodyParser.json());
-app.use(cors());
+app.use(cors({origin: "http://localhost:4200"}));
 require('./config/database')();
 // mongoose.connect(
 // 	process.env.MONGODB_URL,
@@ -21,13 +21,26 @@ require('./config/database')();
 // 		console.log("connected to mongodb");
 // 	},
 // );
-
+// app.use(function(req, res, next) {
+// 	res.header('Access-Control-Allow-Origin "*"');
+// 	res.header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+// 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, noauth ,Authorization,X-Auth-Token");
+// 	next();
+//  }); 
 app.use("/api-docs",
     swaggerUi.serve, swaggerUi.setup(swaggerDocument),
   );
- app.use("/api", require("./routes/userRoutes"));
- app.use("/api", require("./routes/paymentRoutes"));
- app.use("/api", require("./routes/admin/subscriptionRoutes"));
+ app.use("/api/auth", require("./routes/userRoutes"));
+ app.use("/api/payment", require("./routes/paymentRoutes"));
+ app.use("/api/subscription", require("./routes/subscription"));
+ app.use("/api/category", require("./routes/category"));
+ app.use("/api/role", require("./routes/role"));
+ app.use("/api/questionAnswer", require("./routes/questionAnswerRoutes"));
+ app.use("/api/admin/subscription", require("./routes/admin/subscriptionRoutes"));
+ app.use("/api/admin/category", require("./routes/admin/categoryRoutes"));
+ app.use("/api/admin/role", require("./routes/admin/role"));
+ app.use("/api/admin/questionAnswer", require("./routes/admin/questionAnswerRoutes"));
+ app.use("/api/admin/user", require("./routes/admin/users"));
  
  app.listen(process.env.PORT,()=>console.log(`server started at port: ${process.env.PORT}`));
 
