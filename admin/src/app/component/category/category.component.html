@@ -54,19 +54,8 @@
 				</ng-template>
 				<ng-template let-row="row" let-rowIndex="rowIndex" let-value="value" ngx-datatable-cell-template>
 					<span class="release-action" *ngIf="tableData[0] && col.prop === 'nameCategory' && !tableData[0]">
-						<div class="form-check form-check-inline">							
-							<input id="inlineCheckbox_{{row.id}}" (change)="setSelectedNote($event, row)" [checked]="isAllSelected || isNoteChecked(row) || row.isActive==1" type="checkbox"  class="form-check-input" [value]="row.isActive">
-							<label _ngcontent-c14="" class="form-check-label" for="inlineCheckbox_{{row.id}}"></label>
-						</div>
-
-						<a class="anchor" href="javascript:void(0)" title="Edit {{row.type}}" (click)="openModel(addReleaseNote, row);"><i class="mdi mdi-pencil" style="font-size:24px"></i></a>		
-						<a class="anchor" href="javascript:void(0)" title="Delete {{row.type}}" (click)="deleteNote(row);"><i class="mdi mdi-delete text-danger" style="font-size:24px"></i></a>	
 										
 					 </span>	
-					 		
-					<span *ngIf="col.prop === 'description'">				
-						<read-more [isTitleShow]="false" [maxLength]="200" [text]="value"></read-more>
-					</span>
 					<span *ngIf="col.prop === 'sop_document_link'">
 						<span *ngIf="row.sop_document_link">
 							<a class="anchor" target='_blank' href="{{row?.sop_document_link}}">SOP Link</a>
