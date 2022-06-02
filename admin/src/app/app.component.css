@@ -15,3 +15,15 @@
     margin-left: 5%;
     font-size: 95%;
   }
+
+  footer.main-footer {
+    margin-top: auto;
+    margin-left: 0 !important;
+}
+
+.content-wrapper > .content {
+    height: calc(100vh - 57px);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}

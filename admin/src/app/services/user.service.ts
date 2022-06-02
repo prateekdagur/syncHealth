@@ -11,13 +11,18 @@ import Swal from 'sweetalert2'
 })
 export class UserService {
 
-  constructor(private http: HttpClient, private router:Router) { }
+  constructor(private https: HttpClient, private router:Router) { }
 
   // getUsers(){   
   //   return this.http.get(environment.API_ENDPOINT+'/api/users')
   // }
-  login(data:any){   
-    return this.http.get(environment.API_ENDPOINT+'/api/login' + data)
+  usersListing(){   
+    return this.https.get(environment.API_ENDPOINT+'/api/admin/user/listing')
   }
-
+  categoryListing(): Observable<any>{
+    return this.https.get(environment.API_ENDPOINT+'/api/admin/category/listing')
+  }
+  questionAnswerListing(){
+    return this.https.get(environment.API_ENDPOINT+'/api/admin/questionAnswer/listing')
+  }
 }

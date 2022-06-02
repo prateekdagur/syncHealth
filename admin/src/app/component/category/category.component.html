@@ -1,0 +1,186 @@
+<!-- <div class="jobs-list rightWrap" [ngClass]="{'fixPadding': sidebarMenuOpened }">
+	<div class="row">
+		<div [class.col-12]="!sidebarMenuOpened" [class.col-9]="sidebarMenuOpened" [class.pr-0]="sidebarMenuOpened">
+         <div id="sticky-anchor"></div>
+         <div class="card table-responsive checkin-out-timesheet" id="dataTable">
+  <ngx-datatable 
+   #myTable
+    class="material ngx-datatable expandable"
+    [rows]="rows"
+    [columnMode]="'force'"
+    [headerHeight]="50"
+    [footerHeight]="50"
+    rowHeight="auto"
+    [count]= 5
+    [externalSorting]="true"
+    [loadingIndicator]="loading"
+    [limit]="itemsPerPage"
+    (sort)="onSort($event)"
+    [scrollbarH]="true"
+    ngx-resize-watcher> 
+   </ngx-datatable>
+  </div>
+</div>
+</div>
+</div> -->
+ 
+
+<div class="jobs-list rightWrap" [ngClass]="{'fixPadding': sidebarMenuOpened }">
+	<div class="row">
+		<div [class.col-12]="!sidebarMenuOpened" [class.col-9]="sidebarMenuOpened" [class.pr-0]="sidebarMenuOpened">
+			<div class="pageTitle">
+				<div class="">
+					<h5>&nbsp;{{pageTitle}}</h5>
+				</div>		
+				<div class="titleRight">	
+					<button  type="button" class="btn btn-primary"  (click)="publish(noRecordSelctedTemplate)">Publish/Unpublish</button>&nbsp;							
+					<button type="button" class="btn btn-primary"  (click)="openModel(addReleaseNote,'');">Add New <i class="fa fa-plus"></i></button>
+				</div>
+			</div>
+			<div id="sticky-anchor"></div>
+			<!-- listing will start here-->
+      <div class="card table-responsive checkin-out-timesheet" id="dataTable">
+        <ngx-datatable #myTable class="material ngx-datatable expandable" [rows]="tableData" [loadingIndicator]="loadingIndicator"
+          [columnMode]="'standard'" [headerHeight]="100" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+          [limit]="itemsPerPage" ngx-resize-watcher>      
+          <div *ngFor="let col of columns">
+			<ngx-datatable-column *ngIf="col.visible" [name]="col.name" [prop]="col.prop"
+				[width]="col.width" [sortable]="col.sortable">
+				<ng-template *ngIf="col.prop === 'Iron_Job_num__c'" let-row="row" let-value="value"
+					ngx-datatable-cell-template>
+					<div class="align-col">
+						<span *ngIf="tableData[0]['message']">{{value}}</span>					
+					</div>
+				</ng-template>
+				<ng-template let-row="row" let-rowIndex="rowIndex" let-value="value" ngx-datatable-cell-template>
+					<span class="release-action" *ngIf="tableData[0] && col.prop === 'nameCategory' && !tableData[0]">
+						<div class="form-check form-check-inline">							
+							<input id="inlineCheckbox_{{row.id}}" (change)="setSelectedNote($event, row)" [checked]="isAllSelected || isNoteChecked(row) || row.isActive==1" type="checkbox"  class="form-check-input" [value]="row.isActive">
+							<label _ngcontent-c14="" class="form-check-label" for="inlineCheckbox_{{row.id}}"></label>
+						</div>
+
+						<a class="anchor" href="javascript:void(0)" title="Edit {{row.type}}" (click)="openModel(addReleaseNote, row);"><i class="mdi mdi-pencil" style="font-size:24px"></i></a>		
+						<a class="anchor" href="javascript:void(0)" title="Delete {{row.type}}" (click)="deleteNote(row);"><i class="mdi mdi-delete text-danger" style="font-size:24px"></i></a>	
+										
+					 </span>	
+					 		
+					<span *ngIf="col.prop === 'description'">				
+						<read-more [isTitleShow]="false" [maxLength]="200" [text]="value"></read-more>
+					</span>
+					<span *ngIf="col.prop === 'sop_document_link'">
+						<span *ngIf="row.sop_document_link">
+							<a class="anchor" target='_blank' href="{{row?.sop_document_link}}">SOP Link</a>
+						</span> 					
+					</span>	
+
+					 <span *ngIf="col.prop === 'sop_video_link'">
+						<span *ngIf="row.sop_video_link">
+							<a class="anchor" href="javascript:void(0)" (click)="openVideoPlayModel(videoPlay, row);">SOP Video</a>&nbsp;&nbsp;
+						</span> 					
+					</span>
+					<span *ngIf="col.prop != 'description' && col.prop != 'sop_video_link' && col.prop != 'sop_document_link' && col.prop != 'types'">{{value}}</span>
+					<span *ngIf="col.prop === 'types'" style="text-transform: capitalize;">{{value}}</span>
+				</ng-template>
+				<ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
+					<span class="datatable-header-cell-wrapper float-left">
+						<span class="datatable-header-cell-label draggable" (click)="sort()">
+							{{col.name}}
+						</span>
+					</span>
+					<div class="input-group float-right"
+						*ngIf="col.type !='date'&& col.prop != 'Action' && col.prop != 'sop_video_link' && col.prop != 'sop_document_link'">
+						<input type='text' [id]="col.prop" name="col.prop" class="form-control bg-gray"
+							tabindex="-1" placeholder="Search" (keyup)='filterData($event, "text")'
+							[(ngModel)]="filterObj[col.prop]" [ngModelOptions]="{standalone: true}" />
+						<span class="input-group-btn" *ngIf="filterObj[col.prop]">
+							<a  class="dataTable-cross" (click)="clearSearch(col.prop);"
+								href="javascript:void(0);">
+								<i class="fa fa-times suffex cross"></i>
+							</a>
+						</span>
+					</div>
+					
+					<div class="input-group float-right" *ngIf="col.type =='date'">
+						<input [owlDateTimeTrigger]="dt" class="form-control t-search-tb" tabindex="-1"
+							placeholder="Select Date" [id]="col.prop" [owlDateTime]="dt"
+							(dateTimeChange)='filterData($event,"date")' readonly="true"
+							[(ngModel)]="col.value" [ngModelOptions]="{standalone: true}">
+						<owl-date-time #dt [pickerType]="'calendar'"></owl-date-time>
+						<span class="input-group-btn" *ngIf="col.value">
+							<a  class="dataTable-cross" (click)="clearSearch(col.prop); col.value='';"
+								href="javascript:void(0);">
+								<i class="fa fa-times suffex cross"></i>
+							</a>
+						</span>
+					</div>
+
+					<div class="input-group float-right" *ngIf="col.prop =='Action'">
+						<div class="form-check form-check-inline">
+							<input id="inlineCheckbox_Action" [checked]="isAllSelected" type="checkbox" (change)="isAllNotesSelected($event)" class="form-check-input">
+							<label _ngcontent-c14="" class="form-check-label" for="inlineCheckbox_Action">All</label>
+						</div>
+					</div>
+				</ng-template>
+			</ngx-datatable-column>
+		</div>      
+          <ngx-datatable-footer>
+            <ng-template ngx-datatable-footer-template let-rowCount="rowCount" let-pageSize="pageSize"
+              let-selectedCount="selectedCount" let-curPage="curPage" let-offset="offset">
+              <div style="padding: 5px 10px; width: 100%;">                
+                <div>
+                  Showing:
+                  {{((tableData[0]) && !tableData[0]['message']) ? rowCount : 0}} of
+                  Total: {{totalCount}}      
+                </div>
+              </div>
+              <datatable-pager [pagerLeftArrowIcon]="'datatable-icon-left'" [pagerRightArrowIcon]="'datatable-icon-right'"
+                [pagerPreviousIcon]="'datatable-icon-prev'" [pagerNextIcon]="'datatable-icon-skip'" [page]="curPage"
+                [size]="pageSize" [count]="rowCount" [hidden]="!((rowCount / pageSize) > 1)"
+                (change)="myTable.onFooterPage($event)">
+              </datatable-pager>
+              <div style="padding: 5px 10px" class="ml-auto" [hidden]="noRecords"
+                *ngIf="totalCount !== filteredItems?.length">
+                <div>
+                  <button class="btn btn-sm" (click)="loadMoreRecords()">Load More</button>
+                </div>
+              </div>
+            </ng-template>
+          </ngx-datatable-footer>
+        </ngx-datatable>
+      </div>
+		</div>
+    <!-- Sidebar for filters -->
+		<div class="col-3 fix-right-sidebar" [ngClass]="{'right-sidebar-opened': sidebarMenuOpened}">
+			<app-right-sidebar class="job-listing" dateLabel="Released Date" [visibleMenuOptions]="visibleMenuOptions"
+				[disabledMenuOptions]="disabledMenuOptions" [currentMenuOption]="currentMenuOption"
+				[fromDashboard]="false" (appliedFilter)="filterApplied($event)" [enableFilters]="enableFilters"
+				(sidebarAction)="isRightMenuOpened($event)" [enableCustomerFilter]="true">
+			</app-right-sidebar>
+		</div>
+	</div>
+</div>
+
+<!-- Add Release note modal Starts -->
+<ng-template #addReleaseNote let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">{{dataObj?.id ? editTitle :'Add Release Notes'}}</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <app-add-release-note (closePopup)="refreshList(event);closeModal()" [noteInfo]="dataObj"></app-add-release-note>
+  </div>
+</ng-template>
+  <ng-template #noRecordSelctedTemplate let-c="close" let-d="dismiss" class="modal-full">
+	<ng-container class="cancel-WO-container">
+		<div class="modal-header">
+			<ng-container>
+				<h4 class="modal-title" id="gridSystemModalLabel"><span class="mdi mdi-alert text-warning"></span> Warning!! </h4>
+			</ng-container>
+			<button type="button" class="close" aria-label="Close" (click)="d('Cross click');">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+	</ng-container>
+  </ng-template>

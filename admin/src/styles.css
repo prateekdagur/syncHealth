@@ -62,3 +62,6 @@ ul.property_features {
 ul.property_details_ul.pl-5 p.d-inline-block {
   display: inline-block!important;
 }
+@import '~@swimlane/ngx-datatable/index.css';
+@import '~@swimlane/ngx-datatable/themes/material.scss';
+@import '~@swimlane/ngx-datatable/assets/icons.css';
