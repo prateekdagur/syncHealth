@@ -41,10 +41,6 @@ app.use("/api-docs",
  app.use("/api/admin/role", require("./routes/admin/role"));
  app.use("/api/admin/questionAnswer", require("./routes/admin/questionAnswerRoutes"));
  app.use("/api/admin/user", require("./routes/admin/users"));
- 
-
- SSLCertificateFile /etc/letsencrypt/live/apisynchealth.trigma.in/fullchain.pem
- SSLCertificateKeyFile /etc/letsencrypt/live/apisynchealth.trigma.in/privkey.pem
 
 
  var privateKey = fs.readFileSync( '/etc/letsencrypt/live/apisynchealth.trigma.in/privkey.pem' );
