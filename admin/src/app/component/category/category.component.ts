@@ -49,10 +49,10 @@ export class CategoryComponent implements OnInit {
   isLoadMore:any;
   videoObj:any = {}
   selectedNotes:any = [];
-  rows:any = []
+  rows:any[] = [];
   loading:boolean = false
   totalCount:any
-  temp = [];
+  temp:any[] = [];
   destroy$: Subject<boolean> = new Subject<boolean>();
   constructor(private UserService:UserService, private router: Router) { }
 
@@ -73,7 +73,8 @@ export class CategoryComponent implements OnInit {
       { nameCategory: 'Dark', createdAt: '90'}
     ];
     this.totalCount = this.tableData.length; 
-    this.temp = this.tableData
+    this.rows = this.tableData;
+    this.temp = this.tableData;
       this.categoryListing()
        }
        initColumns() {    
@@ -86,17 +87,20 @@ export class CategoryComponent implements OnInit {
           //this.rows = response.data
            });
       } 
-    updateFilter(event:any, text:any) {
-        const val = event.target.value.toLowerCase();
-    console.log(val, text)
-        //filter our dataf
-        const temp = this.temp.filter(data => `data['nameCategory']`.toLowerCase() == val);
-        console.log(temp, "ttttttttt")
-        // update the rows
-        this.tableData = temp;
-        // Whenever the filter changes, always go back to the first page
-        this.table.offset = 0;
+    updateFilter(event:any, text:any) {      
+      const val = event.target.value.toLowerCase();
+      if(val) {
+          // filter our data
+          const temp = this.temp.filter(d => {            
+            return ( d.nameCategory.toLowerCase().indexOf(val) !== -1);
+          });          
+          // update the rows
+          this.rows = temp;            
+      }else{
+          this.rows = this.temp;
       }
+    }
+
       // filterData(event, type) {
       //   if (type === 'date') {
       //       if (event.value === '') {

@@ -13,7 +13,7 @@
 			<div id="sticky-anchor"></div>
 			<!-- listing will start here-->
       <div class="card table-responsive checkin-out-timesheet" id="dataTable">
-        <ngx-datatable #myTable class="material ngx-datatable expandable" [rows]="tableData" [loadingIndicator]="loadingIndicator"
+        <ngx-datatable #myTable class="material ngx-datatable expandable" [rows]="rows" [loadingIndicator]="loadingIndicator"
           [columnMode]="'force'" [headerHeight]="50" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
           [limit]="itemsPerPage" ngx-resize-watcher>      
             <ngx-datatable-column *ngFor="let col of columns"

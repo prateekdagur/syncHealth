@@ -8,7 +8,7 @@ swaggerDocument = require("./core/swagger.json");
 var app = express();
 
 app.use(bodyParser.json());
-app.use(cors({origin: "http://localhost:4200"}));
+app.use(cors({origin: "http://adminsynchealth.trigma.in"}));
 require('./config/database')();
 // mongoose.connect(
 // 	process.env.MONGODB_URL,
@@ -42,5 +42,19 @@ app.use("/api-docs",
  app.use("/api/admin/questionAnswer", require("./routes/admin/questionAnswerRoutes"));
  app.use("/api/admin/user", require("./routes/admin/users"));
  
- app.listen(process.env.PORT,()=>console.log(`server started at port: ${process.env.PORT}`));
+
+ SSLCertificateFile /etc/letsencrypt/live/apisynchealth.trigma.in/fullchain.pem
+ SSLCertificateKeyFile /etc/letsencrypt/live/apisynchealth.trigma.in/privkey.pem
+
+
+ var privateKey = fs.readFileSync( '/etc/letsencrypt/live/apisynchealth.trigma.in/privkey.pem' );
+ var certificate = fs.readFileSync( '/etc/letsencrypt/live/apisynchealth.trigma.in/fullchain.pem' );
+ 
+ https.createServer({
+     key: privateKey,
+     cert: certificate
+ }, app).listen(process.env.PORT);
+
+
+ //app.listen(process.env.PORT,()=>console.log(`server started at port: ${process.env.PORT}`));
 
