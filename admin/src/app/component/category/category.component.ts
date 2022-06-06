@@ -13,9 +13,10 @@ import { noConflict } from 'jquery';
 })
 export class CategoryComponent implements OnInit {
   @ViewChild('myTable') table: any;
-    itemsPerPage:any = 2
-  pageTitle: string = 'Release Notes - List View';
+  itemsPerPage:any = 3
+  pageTitle: string = 'Category Listing';
   Version: string = '';
+  pageSize: any = 3
   allVersions: any[] = [];
   requiredAllVersions: boolean = true;
   errorMessage: any;
@@ -35,13 +36,8 @@ export class CategoryComponent implements OnInit {
   visibleMenuOptions = ['filter'];
    sidebarMenuOpened = false;
   currentMenuOption = '';
-  enableFilters = [
-    'dateOptions',
-    'releaseNotesVersions',
-    'releaseNotesTypes'
-  ];
   filteredItems: any;
-    loadingIndicator = false;
+  loadingIndicator = false;
   noRecords = false;
   dataList = [];
   tabChangeTrigger = false;
@@ -50,11 +46,13 @@ export class CategoryComponent implements OnInit {
   disabledMenuOptions = [];
   globalFilterObj : any = {}
   editTitle:any = ''
+  isLoadMore:any;
   videoObj:any = {}
   selectedNotes:any = [];
   rows:any = []
   loading:boolean = false
-  
+  totalCount:any
+  temp = [];
   destroy$: Subject<boolean> = new Subject<boolean>();
   constructor(private UserService:UserService, private router: Router) { }
 
@@ -62,16 +60,24 @@ export class CategoryComponent implements OnInit {
     this.initColumns()
     this.tableData = [
       { nameCategory: 'Austin', createdAt: '23'},
-      { nameCategory: 'Dany', createdAt: '24'},
+      { nameCategory: 'Dany', createdAt: '270'},
       { nameCategory: 'Molly', createdAt: '25'},
-      { nameCategory: 'Mark', createdAt: '26'}
+      { nameCategory: 'Mark', createdAt: '26'},
+      { nameCategory: 'Boom', createdAt: '30'},
+      { nameCategory: 'Doom', createdAt: '240'},
+      { nameCategory: 'Goom', createdAt: '90'},
+      { nameCategory: 'Koom', createdAt: '28'},
+      { nameCategory: 'Lustin', createdAt: '20'},
+      { nameCategory: 'Soom', createdAt: '50'},
+      { nameCategory: 'Dolly', createdAt: '260'},
+      { nameCategory: 'Dark', createdAt: '90'}
     ];
-
+    this.totalCount = this.tableData.length; 
+    this.temp = this.tableData
       this.categoryListing()
        }
        initColumns() {    
-        this.columns = [{name: 'Name', prop: 'nameCategory', width: 100, visible: true, sortable: false }, 
-        { name: 'Date', prop: 'createdAt',  width: 150, visible: true, sortable: true, type: 'date', showMore: false},];
+        this.columns = [{name: 'Name', prop: 'nameCategory',  width: 150, visible: true, sortable: true,}, { name: 'Date', prop: 'createdAt', width: 150, visible: true, sortable: true, type: 'date', showMore: false }];
       }
       categoryListing(){
         this.UserService.categoryListing().pipe(takeUntil(this.destroy$)).subscribe(response => {
@@ -80,29 +86,50 @@ export class CategoryComponent implements OnInit {
           //this.rows = response.data
            });
       } 
-      // pageChangeEvent(event: number) {
-      //   this.p = event;
-      //   this.categoryListing();
-      // }
-      onSort(event:any) {
-        // event was triggered, start sort sequence
-        console.log('Sort Event', event);
-        this.loading = true;
-        // emulate a server request with a timeout
-        setTimeout(() => {
-          const rows = [...this.rows];
-          // this is only for demo purposes, normally
-          // your server would return the result for
-          // you and you would just set the rows prop
-          const sort = event.sorts[0];
-          rows.sort((a, b) => {
-            return a[sort.prop].localeCompare(b[sort.prop]) * (sort.dir === 'desc' ? -1 : 1);
-          });
-    
-          this.tableData = rows;
-          this.loading = false;
-        }, 1000);
+    updateFilter(event:any, text:any) {
+        const val = event.target.value.toLowerCase();
+    console.log(val, text)
+        //filter our dataf
+        const temp = this.temp.filter(data => `data['nameCategory']`.toLowerCase() == val);
+        console.log(temp, "ttttttttt")
+        // update the rows
+        this.tableData = temp;
+        // Whenever the filter changes, always go back to the first page
+        this.table.offset = 0;
       }
+      // filterData(event, type) {
+      //   if (type === 'date') {
+      //       if (event.value === '') {
+      //           if (this.filterObj[event.input.id + '_temp']) {
+      //               delete this.filterObj[event.input.id];
+      //           }
+      //       } else {
+      //         this.filterObj[event.input.id] = this._commonService.dateFormate(event.value, '', 'MM/DD/YYYY')
+      //       }      
+      //       this.tableData = this.filteredItems.filter(item => {
+      //           const notMatchingField = Object.keys(this.filterObj).find(key =>
+      //               this._utilityService.dataTableSearch(item, this.filterObj, key));
+      //           return !notMatchingField;
+      //       });
+      //   } else {
+      //       if (event.target.value === '') {
+      //           delete this.filterObj[event.currentTarget.id];
+      //       } else {
+      //           this.filterObj[event.currentTarget.id] = event.target.value;
+      //       }
+      //       this.tableData = this.filteredItems.filter(item => {
+      //           const notMatchingField = Object.keys(this.filterObj).find(key =>
+      //               this._utilityService.dataTableSearch(item, this.filterObj, key));
+      //           return !notMatchingField;
+      //       });
+      //   }
+      //   if (this.table) {
+      //       this.table['offset'] = 0
+      //   }
+      //   this.setEmptyMessage();
+      // }
+  
+
   ngOnDestroy() {
     this.destroy$.next(true);
     // Unsubscribe from the subject
