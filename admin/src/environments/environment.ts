@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   APP_NAME:"Sync Health",
-  API_ENDPOINT:'http://localhost:5000',
+  API_ENDPOINT:'http://localhost:3028',
   MESSAGES:{
     "SUCCESSFULLY-LOGOUT":"Loggedout Successfully",
     "CHECKING-AUTHORIZATION":"Checking Authorization",
