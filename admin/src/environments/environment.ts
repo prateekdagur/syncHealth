@@ -5,7 +5,7 @@
 export const environment = {
   production: false,
   APP_NAME:"Sync Health",
-  API_ENDPOINT:'https://apisynchealth.trigma.in',
+  API_ENDPOINT:'http://localhost:3028',
   MESSAGES:{
     "SUCCESSFULLY-LOGOUT":"Loggedout Successfully",
     "CHECKING-AUTHORIZATION":"Checking Authorization",

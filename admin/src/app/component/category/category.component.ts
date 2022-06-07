@@ -13,10 +13,10 @@ import { noConflict } from 'jquery';
 })
 export class CategoryComponent implements OnInit {
   @ViewChild('myTable') table: any;
-  itemsPerPage:any = 3
+  itemsPerPage:any = 10
   pageTitle: string = 'Category Listing';
   Version: string = '';
-  pageSize: any = 3
+  pageSize: any = 10
   allVersions: any[] = [];
   requiredAllVersions: boolean = true;
   errorMessage: any;
@@ -58,81 +58,75 @@ export class CategoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.initColumns()
-    this.tableData = [
-      { nameCategory: 'Austin', createdAt: '23'},
-      { nameCategory: 'Dany', createdAt: '270'},
-      { nameCategory: 'Molly', createdAt: '25'},
-      { nameCategory: 'Mark', createdAt: '26'},
-      { nameCategory: 'Boom', createdAt: '30'},
-      { nameCategory: 'Doom', createdAt: '240'},
-      { nameCategory: 'Goom', createdAt: '90'},
-      { nameCategory: 'Koom', createdAt: '28'},
-      { nameCategory: 'Lustin', createdAt: '20'},
-      { nameCategory: 'Soom', createdAt: '50'},
-      { nameCategory: 'Dolly', createdAt: '260'},
-      { nameCategory: 'Dark', createdAt: '90'}
-    ];
-    this.totalCount = this.tableData.length; 
-    this.rows = this.tableData;
-    this.temp = this.tableData;
+    // this.tableData = [
+    //   { name: 'Austin', createdAt: '23'},
+    //   { name: 'Dany', createdAt: '270'},
+    //   { name: 'Molly', createdAt: '25'},
+    //   { name: 'Mark', createdAt: '26'},
+    //   { name: 'Boom', createdAt: '30'},
+    //   { name: 'Doom', createdAt: '240'},
+    //   { name: 'Goom', createdAt: '90'},
+    //   { name: 'Koom', createdAt: '28'},
+    //   { name: 'Lustin', createdAt: '20'},
+    //   { name: 'Soom', createdAt: '50'},
+    //   { name: 'Dolly', createdAt: '260'},
+    //   { name: 'Dark', createdAt: '90'}
+    // ];
+    // this.totalCount = this.tableData.length; 
+    // this.rows = this.tableData;
+    // this.temp = this.tableData;
       this.categoryListing()
        }
        initColumns() {    
-        this.columns = [{name: 'Name', prop: 'nameCategory',  width: 150, visible: true, sortable: true,}, { name: 'Date', prop: 'createdAt', width: 150, visible: true, sortable: true, type: 'date', showMore: false }];
+        this.columns = [{name: 'Name', prop: 'name',  width: 150, visible: true, sortable: true,}, { name: 'Date', prop: 'createdAt', width: 150, visible: true, sortable: true, type: 'date', showMore: false }];
       }
       categoryListing(){
         this.UserService.categoryListing().pipe(takeUntil(this.destroy$)).subscribe(response => {
           
-          console.log(response.data[0].category, "response>>>>>>>>>>>>>>>>>>")
-          //this.rows = response.data
+          console.log(response.data, "response>>>>>>>>>>>>>>>>>>")
+          this.tableData = response.data
+          this.totalCount = this.tableData.length; 
+          this.rows = this.tableData;
+          this.temp = this.tableData;
            });
       } 
-    updateFilter(event:any, text:any) {      
-      const val = event.target.value.toLowerCase();
-      if(val) {
-          // filter our data
-          const temp = this.temp.filter(d => {            
-            return ( d.nameCategory.toLowerCase().indexOf(val) !== -1);
-          });          
-          // update the rows
-          this.rows = temp;            
-      }else{
-          this.rows = this.temp;
-      }
-    }
 
-      // filterData(event, type) {
-      //   if (type === 'date') {
-      //       if (event.value === '') {
-      //           if (this.filterObj[event.input.id + '_temp']) {
-      //               delete this.filterObj[event.input.id];
-      //           }
-      //       } else {
-      //         this.filterObj[event.input.id] = this._commonService.dateFormate(event.value, '', 'MM/DD/YYYY')
-      //       }      
-      //       this.tableData = this.filteredItems.filter(item => {
-      //           const notMatchingField = Object.keys(this.filterObj).find(key =>
-      //               this._utilityService.dataTableSearch(item, this.filterObj, key));
-      //           return !notMatchingField;
-      //       });
-      //   } else {
-      //       if (event.target.value === '') {
-      //           delete this.filterObj[event.currentTarget.id];
-      //       } else {
-      //           this.filterObj[event.currentTarget.id] = event.target.value;
-      //       }
-      //       this.tableData = this.filteredItems.filter(item => {
-      //           const notMatchingField = Object.keys(this.filterObj).find(key =>
-      //               this._utilityService.dataTableSearch(item, this.filterObj, key));
-      //           return !notMatchingField;
-      //       });
-      //   }
-      //   if (this.table) {
-      //       this.table['offset'] = 0
-      //   }
-      //   this.setEmptyMessage();
+      // openModel(modal:any, data:any) {
+
+      //   this.editTitle =(data)?`Edit ${data.type}`:''
+      //   this.dataObj = data;
       // }
-  
+    
+
+      updateFilter(event:any, text:any) {
+        const val = event.target.value.toLowerCase();
+        if(val) {
+            // filter our data
+            const temp = this.temp.filter(d => {
+              return ( d[text].toLowerCase().indexOf(val) !== -1);
+            });          
+            // update the rows
+            this.rows = temp;            
+        }else{
+            this.rows = this.temp;
+        }
+      }
+
+    // updateFilter(event:any, text:any) {      
+    //   const val = event.target.value.toLowerCase();
+    //   if(val) {
+    //       // filter our data
+    //       const temp = this.temp.filter(d => {            
+    //         return ( d.nameCategory.toLowerCase().indexOf(val) !== -1);
+    //       });          
+    //       // update the rows
+    //       this.rows = temp;            
+    //   }else{
+    //       this.rows = this.temp;
+    //   }
+    // }
+
+     
 
   ngOnDestroy() {
     this.destroy$.next(true);

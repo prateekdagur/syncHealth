@@ -10,7 +10,9 @@ swaggerDocument = require("./core/swagger.json");
 var app = express();
 
 app.use(bodyParser.json());
-app.use(cors({origin: "http://adminsynchealth.trigma.in"}));
+//app.use(cors({origin: "http://adminsynchealth.trigma.in"}));
+// app.use(cors({origin: "http://localhost:4200"}));
+app.use(cors())
 require('./config/database')();
 // mongoose.connect(
 // 	process.env.MONGODB_URL,
@@ -22,16 +24,10 @@ require('./config/database')();
 // 		if (err) throw err;
 // 		console.log("connected to mongodb");
 // 	},
-// );
-// app.use(function(req, res, next) {
-// 	res.header('Access-Control-Allow-Origin "*"');
-// 	res.header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
-// 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, noauth ,Authorization,X-Auth-Token");
-// 	next();
-//  }); 
-app.use("/api-docs",
-    swaggerUi.serve, swaggerUi.setup(swaggerDocument),
-  );
+// )
+// app.use("/api-docs",
+//     swaggerUi.serve, swaggerUi.setup(swaggerDocument),
+//   );
  app.use("/api/auth", require("./routes/userRoutes"));
  app.use("/api/payment", require("./routes/paymentRoutes"));
  app.use("/api/subscription", require("./routes/subscription"));

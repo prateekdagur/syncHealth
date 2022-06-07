@@ -14,7 +14,7 @@
 			<!-- listing will start here-->
       <div class="card table-responsive checkin-out-timesheet" id="dataTable">
         <ngx-datatable #myTable class="material ngx-datatable expandable" [rows]="rows" [loadingIndicator]="loadingIndicator"
-          [columnMode]="'force'" [headerHeight]="50" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+          [columnMode]="'force'" [headerHeight]="100" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
           [limit]="itemsPerPage" ngx-resize-watcher>      
             <ngx-datatable-column *ngFor="let col of columns"
              [name]="col.name" [prop]="col.prop"
@@ -30,27 +30,27 @@
 					<!-- <span class="release-action" *ngIf="tableData[0] && col.prop === 'nameCategory' && !tableData[0]">
 										
 					 </span>	 -->
-					<span *ngIf="col.prop === 'nameCategory'">
-						<span *ngIf="row.nameCategory">
+					<span *ngIf="col.prop === 'name'">
+						<span *ngIf="row.name">
 						{{value}}
 						</span> 					
 					</span>	
 
 					 <span *ngIf="col.prop === 'createdAt'">
 						<span *ngIf="row.createdAt">
-                     {{value}}
+                     {{value | date}}
 						</span> 					
 					</span>
 				</ng-template>
 
 				 <ng-template let-column="column" let-sort="sortFn" ngx-datatable-header-template>
-					<span class="datatable-header-cell-wrapper float-left">
+					<span class="datatable-header-cell-wrapper mm float-left">
 						<span class="datatable-header-cell-label draggable" (click)="sort()">
 							{{col.name}}
 						</span>
 					</span>
 					<div class="input-group float-right">
-						<input type='text' [id]="col.prop" name="col.prop"
+						<input type='text' [id]="col.prop" name="col.prop" class="form-control t-search-tb"
 							tabindex="-1" placeholder="Search" (keyup)='updateFilter($event, col.prop)'
 							/>
 						<!-- <span class="input-group-btn">

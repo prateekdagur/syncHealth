@@ -4,7 +4,7 @@ const { Schema } = mongoose;
 //Model for user details.
 const categorySchema = new mongoose.Schema(
 	{
-		nameCategory: {
+		name: {
 			type: String 
 		}
 	},
