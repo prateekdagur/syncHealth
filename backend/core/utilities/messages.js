@@ -29,6 +29,7 @@ const ERROR = {
 const SUCCESS = {
     errorBoolean: false,
     success: "Success",
+    categoryUpdated: "Category is deleted successfully!",
     SubscriptionTrial: "Enjoy your three months trial",
     subscriptionFetched: "Subscription info fetched",
     questionAdded: "Question added successfully",

@@ -10,9 +10,9 @@ swaggerDocument = require("./core/swagger.json");
 var app = express();
 
 app.use(bodyParser.json());
-//app.use(cors({origin: "http://adminsynchealth.trigma.in"}));
-// app.use(cors({origin: "http://localhost:4200"}));
-app.use(cors())
+// app.use(cors({origin: "http://adminsynchealth.trigma.in"}));
+//app.use(cors({origin: "http://localhost:4200"}));
+ app.use(cors())
 require('./config/database')();
 // mongoose.connect(
 // 	process.env.MONGODB_URL,
