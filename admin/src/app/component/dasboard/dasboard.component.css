@@ -1,0 +1,47 @@
+.pageTitle {
+    margin: 15px 0 15px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .pageTitle h5 {
+    color: #0d1d30;
+    font-size: 20px;
+    font-weight: 500;
+  }
+  
+  .pageTitle span {
+    color: #1e85df;
+  }
+
+
+  .dot {
+    height: 8px;
+    width: 8px;
+    background-color: green;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .text_margin{
+    margin-left: 10%;
+    font-size: 85%;
+    margin-top: 50%;
+  }
+
+  .list_margin{
+    margin-left: 5%;
+    font-size: 95%;
+  }
+
+  footer.main-footer {
+    margin-top: auto;
+    margin-left: 0 !important;
+}
+
+.content-wrapper > .content {
+    height: calc(100vh - 57px);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}

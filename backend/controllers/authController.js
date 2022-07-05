@@ -23,40 +23,37 @@ const statusCode = require("../core/utilities/statusCode");
 	//const fromMail = config.get('fromMail');
 	const signUpLinkSubject = config.get('linkSubject'); 
 	const approveAccountUrl = config.get('approveAccountUrl'); 
-
 	const signUp = async (req, res) => {
 		try {
 		    const { first_name, last_name, gender, dob, bmi, category_id, role_id, email, password } = req.body;
 			const user = await User.findOne({email: email});
-			if (user) {
-			errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.emailExist, statusCode.CODES.CLIENT_ERROR.valueAlreadyExist, dataEmpty, res);
-		   exit() 
-		}
-			const currentData = moment()
-            const birthDate = moment(dob, 'YYYY/MM/DD');
-		    var age = currentData.format('YYYY') - birthDate.format('YYYY')
-			const m = currentData.format('MM') - birthDate.format('MM');
-			if (m < 0 || (m === 0 && today.format('DD') < birthDate.format('DD'))){
-				age--
-			}
-		    age;
-			const hash = await bcrypt.hash(password, saltRounds);
- 			//Saving user.
-			const newUser = new User({
-				first_name, last_name, gender, age, dob, bmi, category_id, role_id, email, password: hash
-			});
-            await newUser.save();
-
-
-	    	const mailOptions = {
-			to: email,
-			subject: signUpLinkSubject,
-			html: `<p>Click <a href="${approveAccountUrl}/${newUser._id}">here</a> to approve your account</p>`
-	       };
-		   sendEmail(mailOptions, res)
-		   } catch (err) {
-		    errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
-			}
+			if(user) {
+			  errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.emailExist, statusCode.CODES.CLIENT_ERROR.valueAlreadyExist, dataEmpty, res);
+		    } else {
+                const currentData = moment()
+				const birthDate = moment(dob, 'YYYY/MM/DD');
+				var age = currentData.format('YYYY') - birthDate.format('YYYY')
+				const m = currentData.format('MM') - birthDate.format('MM');
+				if (m < 0 || (m === 0 && today.format('DD') < birthDate.format('DD'))){
+					age--
+				}
+				age;
+				const hash = await bcrypt.hash(password, saltRounds);
+				 //Saving user.
+				const newUser = new User({
+					first_name, last_name, gender, age, dob, bmi, category_id, role_id, email, password: hash
+				});
+				await newUser.save();
+				const mailOptions = {
+				to: email,
+				subject: signUpLinkSubject,
+				html: `<p>Click <a href="${approveAccountUrl}/${newUser._id}">here</a> to approve your account</p>`
+			   };
+			   sendEmail(mailOptions, res)
+			  }
+              } catch (err) {
+		       errorResponse(ERROR.errorBoolean, emptyValidationsErrors, err.message, statusCode.CODES.SERVER_ERROR.internalServerError, dataEmpty, res);
+			 }
 		}
 
 	const approveAccount = async (req, res) => {
@@ -295,7 +292,7 @@ const statusCode = require("../core/utilities/statusCode");
 
 //Function to to create access token.
 const createAccessToken = (user) => {
-	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "1d" });
+	return jwt.sign(user, process.env.ACCESS_TOKEN_SECRET);
 };
 
 module.exports = {signUp, login, logout, approveAccount, forgotPassword, verifyOTP, resetPassword, getUser};

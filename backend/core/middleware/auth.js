@@ -13,6 +13,7 @@ const responseCode = require("../utilities/statusCode")
 				errorResponse(ERROR.errorBoolean, ERROR.invalidAuth, "", responseCode.CODES.CLIENT_ERROR.unauthorized, [], res)
 			}
 		    req.user = user;
+			console.log("req>>>>>>>>>>>>>", req.user)
 			next();
 		});
 	} catch (err) {

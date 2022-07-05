@@ -27,6 +27,7 @@ const emptyValidationsErrors = config.get('emptyValidationsErrors');
 		const getQuestionAnswer = async (req, res) => {
             try {
                 const questionAnswer = await QuestionAnswer.find();
+				console.log(questionAnswer, "qqqqqqqqqqqqqqqq")
                 if (!questionAnswer) {
                      errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noQuestion, statusCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res)
                 }

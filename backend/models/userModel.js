@@ -37,7 +37,7 @@ const userSchema = new mongoose.Schema(
 		  type: Boolean,
 		  default: true
 		},
-		is_soft_deleted: {
+		is_deleted: {
           type: Boolean,
 		  default: true
 		},
@@ -75,6 +75,11 @@ const userJoiSchema = Joi.object().keys({
 
   })
 
+  const adminLoginJoiSchema = Joi.object().keys({
+    email: Joi.string().email().required(),
+    password: Joi.string().required(),
+  })
+
   const resetPasswordJoiSchema = Joi.object().keys({
     email: Joi.string().email().required(),
     password: Joi.string().required()
@@ -93,7 +98,7 @@ const userJoiSchema = Joi.object().keys({
 
 //Exporting file and set collection name user.
 const User = mongoose.model("user", userSchema);
-module.exports = {User, userJoiSchema, userLoginJoiSchema, userLogoutJoiSchema, userForgotPasswordJoiSchema, resetPasswordJoiSchema}
+module.exports = {User, userJoiSchema, userLoginJoiSchema, adminLoginJoiSchema, userLogoutJoiSchema, userForgotPasswordJoiSchema, resetPasswordJoiSchema}
 
 
 

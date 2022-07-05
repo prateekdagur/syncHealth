@@ -12,14 +12,14 @@
 			</div>
 			<div id="sticky-anchor"></div>
 			<!-- listing will start here-->
-      <div class="card table-responsive checkin-out-timesheet" id="dataTable">
+      <div class="card table-responsive checkin-out-timesheet" id="dataTable" style="padding: 5px 10px; width: 100%;">
         <ngx-datatable #myTable class="material ngx-datatable expandable" [rows]="rows" [loadingIndicator]="loadingIndicator"
-          [columnMode]="'force'" [headerHeight]="100" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
+          [columnMode]="'force'" [headerHeight]="90" [footerHeight]="50" [rowHeight]="'auto'" [scrollbarH]="true"
           [limit]="itemsPerPage" ngx-resize-watcher>      
-            <ngx-datatable-column *ngFor="let col of columns"
+            <ngx-datatable-column class ="headerHt" *ngFor="let col of columns"
              [name]="col.name" [prop]="col.prop"
 				[width]="col.width" [sortable]="col.sortable">
-         {{col.name}}
+                {{col.name}}
 				<!-- <ng-template *ngIf="col.prop === 'Iron_Job_num__c'" let-row="row" let-value="value"
 					ngx-datatable-cell-template>
 					<div class="align-col">
@@ -36,10 +36,22 @@
 						</span> 					
 					</span>	
 
-					 <span *ngIf="col.prop === 'createdAt'">
-						<span *ngIf="row.createdAt">
-                     {{value | date}}
-						</span> 					
+					<span *ngIf="col.prop === 'is_active'">
+						<span>
+							<input
+							type="checkbox"
+							[checked]="row.is_active == true?true:false"
+							(click)="onModelChange(row._id, $event)"
+						  />
+						  <!-- <div class="checkbox-border">
+							<div *ngIf='isChecked' class="checkbox-filling"></div>
+						  </div> -->
+						</span> 
+						<span
+						checked="row.is_active == true?true:false"
+						(click)="onDelete(row._id)">
+								<i class="fa fa-trash deleteicon"></i>				
+					</span> 
 					</span>
 				</ng-template>
 
@@ -49,7 +61,7 @@
 							{{col.name}}
 						</span>
 					</span>
-					<div class="input-group float-right">
+					<div *ngIf="col.prop != 'is_active'" class="input-group float-right">
 						<input type='text' [id]="col.prop" name="col.prop" class="form-control t-search-tb"
 							tabindex="-1" placeholder="Search" (keyup)='updateFilter($event, col.prop)'
 							/>

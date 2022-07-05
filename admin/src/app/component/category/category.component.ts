@@ -13,6 +13,7 @@ import { noConflict } from 'jquery';
 })
 export class CategoryComponent implements OnInit {
   @ViewChild('myTable') table: any;
+  isChecked:boolean = false
   itemsPerPage:any = 10
   pageTitle: string = 'Category Listing';
   Version: string = '';
@@ -58,31 +59,13 @@ export class CategoryComponent implements OnInit {
 
   ngOnInit(): void {
     this.initColumns()
-    // this.tableData = [
-    //   { name: 'Austin', createdAt: '23'},
-    //   { name: 'Dany', createdAt: '270'},
-    //   { name: 'Molly', createdAt: '25'},
-    //   { name: 'Mark', createdAt: '26'},
-    //   { name: 'Boom', createdAt: '30'},
-    //   { name: 'Doom', createdAt: '240'},
-    //   { name: 'Goom', createdAt: '90'},
-    //   { name: 'Koom', createdAt: '28'},
-    //   { name: 'Lustin', createdAt: '20'},
-    //   { name: 'Soom', createdAt: '50'},
-    //   { name: 'Dolly', createdAt: '260'},
-    //   { name: 'Dark', createdAt: '90'}
-    // ];
-    // this.totalCount = this.tableData.length; 
-    // this.rows = this.tableData;
-    // this.temp = this.tableData;
       this.categoryListing()
        }
        initColumns() {    
-        this.columns = [{name: 'Name', prop: 'name',  width: 150, visible: true, sortable: true,}, { name: 'Date', prop: 'createdAt', width: 150, visible: true, sortable: true, type: 'date', showMore: false }];
+        this.columns = [{name: 'Name', prop: 'name',  width: 150, visible: true, sortable: true}, { name: 'Action', prop: 'is_active', width: 150, visible: true, sortable: false, type: 'date', showMore: false },];
       }
       categoryListing(){
         this.UserService.categoryListing().pipe(takeUntil(this.destroy$)).subscribe(response => {
-          
           console.log(response.data, "response>>>>>>>>>>>>>>>>>>")
           this.tableData = response.data
           this.totalCount = this.tableData.length; 
@@ -112,21 +95,21 @@ export class CategoryComponent implements OnInit {
         }
       }
 
-    // updateFilter(event:any, text:any) {      
-    //   const val = event.target.value.toLowerCase();
-    //   if(val) {
-    //       // filter our data
-    //       const temp = this.temp.filter(d => {            
-    //         return ( d.nameCategory.toLowerCase().indexOf(val) !== -1);
-    //       });          
-    //       // update the rows
-    //       this.rows = temp;            
-    //   }else{
-    //       this.rows = this.temp;
-    //   }
-    // }
-
-     
+      onModelChange(id:any, eventcheck:any) {
+        const event = eventcheck.target.checked
+        const eventSt = event.toString()
+         const eventString = JSON.parse(eventSt);
+         this.UserService.updateCategoryIsActive(id, eventString).subscribe((res:any) => {
+         console.log(res, "response>>>>>>>>>>>>>>>>>>")
+         if(res.is_error === false){
+          this.categoryListing()
+         }
+   });
+ }
+ 
+ onDelete(id:any){
+console.log(id)
+ }
 
   ngOnDestroy() {
     this.destroy$.next(true);

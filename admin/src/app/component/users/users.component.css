@@ -1,0 +1,206 @@
+.checkin-out-timesheet {
+    overflow: hidden;
+  }
+  
+  .checkin-out-timesheet::ng-deep .ngx-datatable.material .datatable-body .datatable-row-detail {
+    width: 60% !important;
+  }
+  
+  .rightWrap {
+    background: #fff;
+    margin: 0 !important;
+    padding: 0px 68px 0px 12px;
+  }
+  
+  .pageTitle {
+    margin: 15px 0 15px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .pageTitle h5 {
+    color: #0d1d30;
+    font-size: 20px;
+    font-weight: 500;
+  }
+  
+  .pageTitle span {
+    color: #1e85df;
+  }
+  .example-section {
+    margin: 12px 0;
+  }
+  
+  .example-margin {
+    margin: 0 12px;
+  }
+  .deleteicon {
+    margin-left: 14px;
+    font-size: 15px;
+    position: relative;
+    top: -1px;
+}
+
+  ul {
+    list-style-type: none;
+    margin-top: 4px;
+  }
+  .fix-right-sidebar {
+    top: 70px;
+    position: fixed;
+    right: 48px;
+  }
+  
+  .fixPadding.screen-with-left-menu {
+    padding-right: 138px !important;
+  }
+  
+  .fixPadding {
+    padding-right: 78px !important;
+  }
+  
+  .tableExpand {
+    /* border-bottom: 1px solid #b4bcc6; */
+    /* background: #fff; */
+    width: 80%;
+    bottom: 7px;
+    padding: 0 0 15px 0;
+    margin-left: 3%;
+  }
+  
+  .innerWrapper {
+    margin: 10px;
+    display: -webkit-box;
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    padding: 9px 20px;
+    
+  }
+  
+  .innerWrapper.break_header_filled {
+    background: #445B78;
+    border-radius: 5px;
+  }
+  
+  .innerWrapper.break_list {
+    margin: 0 10px;
+    padding-top: 0px;
+  }
+  
+  .innerWrapper div.col-2 {
+    margin-bottom: 10px;
+  }
+  
+  .tableExpand h4 {
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    margin: 0 0 0px 0;
+    padding: 0;
+  }
+  
+  .tableExpand span {
+    color: #0d1d30;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: normal;
+  }
+  
+  span.detailView {
+    cursor: pointer;
+    background: #fff;
+    width: 22px;
+    height: 22px;
+    border-radius: 5px;
+    display: block;
+    text-align: center;
+    color: black;
+    font-size: 17px;
+    line-height: 21px;
+    margin-left: 5%;
+    border: 1px solid #b0b7c1;
+  }
+  
+  .datatable-header-cell-label, .checkin-out-timesheet::ng-deep span.datatable-header-cell-label {
+    font-size: 14px !important;
+    color: #b1b8c3 !important;
+  }
+  
+  .time_break_min {
+    display: flex;
+  }
+  
+  .checkin-out-timesheet::ng-deep .datatable-body-row[ng-reflect-expanded="true"] {
+    background: #EFF1F4 !important;
+  }
+  
+  .text-link, .break_list span.text-link{
+    color: #04A9FF;
+  }
+  
+  
+  .break_Change_request span{
+    font-size: 17px;
+  }
+  
+  .break_Change_request span a{
+    cursor: pointer;
+  }
+  
+  .innerWrapper .break-item{
+    flex: 1;
+  }
+  
+  .innerWrapper .break-item{
+    flex: 1;
+  }
+  
+  .innerWrapper .break-item.break_Change_request{
+    text-align: end;
+  }
+  
+  .innerWrapper .break-item.break_Change_request.value{
+    text-align: center;
+  }
+  
+  .innerWrapper .break-item.start-break-value{
+    flex: 2;
+  }
+  
+  .innerWrapper .break-item.end-break-value{
+    flex: 2;
+    text-align: center;
+  }
+  
+  .innerWrapper .break-item.break-time-value{
+    flex: 2;
+    text-align: center;
+  }
+  
+  .innerWrapper .break-item.request-status{
+    flex: 3;
+    text-align: center;
+  }
+  
+  .innerWrapper .break-item.letter-spacing.value {
+    padding: 0 10px 0 0;
+  }
+  .bg-gray, .t-search-tb {
+    padding: .375rem .75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border: 1px solid #dfe3e9;
+    background: #e4e9f5 !important;
+    color: #495057;
+    opacity: 1;
+    border-radius: 3px;
+  }
+  .release-action{
+    display: flex;
+    align-items: center;
+  }
+  .visible .datatable-header, .ngx-datatable.material .datatable-header {
+    height: auto !important;
+}

@@ -26,7 +26,7 @@ const emptyValidationsErrors = config.get('emptyValidationsErrors');
 
         const getCategory = async (req, res) => {
             try {
-                const category = await Category.find({is_active: true, is_deleted: false});
+                const category = await Category.find({is_deleted: false});
                 if (!category) {
                      errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noCategory, statusCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res)
                 exit()}
@@ -53,10 +53,10 @@ const emptyValidationsErrors = config.get('emptyValidationsErrors');
 					   }
 				    }
 		
-				const updateCategory = async (req, res) => {
+			    const updateCategoryIsActive = async (req, res) => {
 					try {
 					    const id = req.params.id
-					    const status = req.body.activeStatus
+					    const status = req.body.eventString
 						const categoryUpdated = await Category.findOneAndUpdate({_id: id}, {is_active: status});
 						if (!categoryUpdated) {
 							errorResponse(ERROR.errorBoolean, emptyValidationsErrors, ERROR.noCategory, statusCode.CODES.CLIENT_ERROR.notFound, dataEmpty, res)
@@ -69,4 +69,4 @@ const emptyValidationsErrors = config.get('emptyValidationsErrors');
 					}
 			
 
-module.exports = {createCategory, getCategory, deleteCategory, updateCategory};
+module.exports = {createCategory, getCategory, deleteCategory, updateCategoryIsActive};

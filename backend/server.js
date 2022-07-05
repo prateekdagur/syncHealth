@@ -11,8 +11,14 @@ var app = express();
 
 app.use(bodyParser.json());
 // app.use(cors({origin: "http://adminsynchealth.trigma.in"}));
-//app.use(cors({origin: "http://localhost:4200"}));
- app.use(cors())
+app.use(cors({origin: "http://localhost:4200"}));
+// app.use(cors())
+// app.use(function(req, res, next) {
+// 	res.header('Access-Control-Allow-Origin: *');
+// 	res.header('Access-Control-Allow-Methods: GET, POST, PATCH, PUT, DELETE, OPTIONS');
+// 	res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, noauth ,Authorization,X-Auth-Token");
+// 	next();
+//  }); 
 require('./config/database')();
 // mongoose.connect(
 // 	process.env.MONGODB_URL,
@@ -39,16 +45,17 @@ require('./config/database')();
  app.use("/api/admin/role", require("./routes/admin/role"));
  app.use("/api/admin/questionAnswer", require("./routes/admin/questionAnswerRoutes"));
  app.use("/api/admin/user", require("./routes/admin/users"));
+ app.use("/api/admin/auth", require("./routes/admin/auth"));
 
 
- var privateKey = fs.readFileSync( '/etc/letsencrypt/live/apisynchealth.trigma.in/privkey.pem' );
- var certificate = fs.readFileSync( '/etc/letsencrypt/live/apisynchealth.trigma.in/fullchain.pem' );
+//  var privateKey = fs.readFileSync( '/etc/letsencrypt/live/apisynchealth.trigma.in/privkey.pem' );
+//  var certificate = fs.readFileSync( '/etc/letsencrypt/live/apisynchealth.trigma.in/fullchain.pem' );
  
- https.createServer({
-     key: privateKey,
-     cert: certificate
- }, app).listen(process.env.PORT);
+//  https.createServer({
+//      key: privateKey,
+//      cert: certificate
+//  }, app).listen(process.env.PORT);
 
 
- //app.listen(process.env.PORT,()=>console.log(`server started at port: ${process.env.PORT}`));
+ app.listen(process.env.PORT,()=>console.log(`server started at port: ${process.env.PORT}`));
 

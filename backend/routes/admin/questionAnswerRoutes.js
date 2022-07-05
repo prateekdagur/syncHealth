@@ -5,6 +5,6 @@ const validateRequest = require('../../core/middleware/validateRequest')
 const {questionAnswerJoiSchema} = require('../../models/admin/questionAnswerModel')
 const {createQuestionAnswer, getQuestionAnswer} = require("../../controllers/admin/questionAnswerController");
 router.post("/add", validateRequest(questionAnswerJoiSchema), createQuestionAnswer);
-router.post("/listing", getQuestionAnswer);
+router.get("/listing", getQuestionAnswer);
 
 module.exports = router;

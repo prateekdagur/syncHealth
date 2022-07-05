@@ -17,6 +17,7 @@ const ERROR = {
     otpExpired: "OTP expired.",
     idRequired: "ID is required",
     accessDenied: "Access Denied",
+    adminAccessDenied: "Admin access denied.",
     deviceTokenRequired: "Device Token  is required",
     tokenRequired: "Token is required",
     otpRequired: "OTP is required",
@@ -29,7 +30,8 @@ const ERROR = {
 const SUCCESS = {
     errorBoolean: false,
     success: "Success",
-    categoryUpdated: "Category is deleted successfully!",
+    userUpdated: "User is updated successfully!",
+    categoryUpdated: "Category is updated successfully!",
     SubscriptionTrial: "Enjoy your three months trial",
     subscriptionFetched: "Subscription info fetched",
     questionAdded: "Question added successfully",

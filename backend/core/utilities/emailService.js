@@ -21,6 +21,7 @@ const  transporter =  nodemailer.createTransport({
  });
 // async (req, res, next)
 const sendEmail = async (mailOptions, res) => {
+    console.log("1111111111111")
             const info =  await transporter.sendMail({             
                 from:config.get('fromMail'),
                 to:mailOptions.to,

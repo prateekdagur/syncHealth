@@ -1,4 +1,5 @@
 const errorResponse =  (status, validations, message, code, data, response) => {
+    console.log("00000000000000")
     return response.json({ is_error: status, message: message, errors: validations, responseCode: code, data});
 };
 

@@ -1,6 +1,6 @@
 /* You can add global styles to this file, and also import other style files */
 /* You can add global styles to this file, and also import other style files */
-
+@import '~bootstrap/dist/css/bootstrap.min.css';
 .table-bordered > thead > tr > th,
 .table-bordered > tbody > tr > th,
 .table-bordered > tfoot > tr > th,
@@ -9,7 +9,9 @@
 .table-bordered > tfoot > tr > td {
   border-color: #eae3e3;
 }
-
+.buttoncl{
+  color: blue;
+}
 .modal-backdrop {
   position: relative !important;
 }

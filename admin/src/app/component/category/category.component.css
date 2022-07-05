@@ -187,3 +187,21 @@
   .visible .datatable-header, .ngx-datatable.material .datatable-header {
     height: auto !important;
 }
+.deleteicon {
+  margin-left: 14px;
+  font-size: 15px;
+  position: relative;
+  top: -1px;
+}
+
+.headerInnerHeight {
+  width: 466.5px;
+  height: 85px;
+}
+
+.searchBar {
+  width: auto;
+  top: 23px;
+  right: 214px;
+}
+
